@@ -6,13 +6,6 @@
     "configurations": [
         {
             "type": "node",
-            "request": "attach",
-            "name": "Attach",
-            "port": 1111,
-            "address": "localhost",
-        },
-        {
-            "type": "node",
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}/bin/www"

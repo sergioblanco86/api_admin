@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mysql = require('mysql');
 
-var con = mysql.createConnection({
+var connection = mysql.createConnection({
     host : 'localhost',
     user : 'root',
     password : '',
@@ -34,8 +34,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // DB accesible to our router
 app.use((req, res ,next) => {
-    req.con = con;
-    next;
+    req.con = connection;
+    next(null);
 });
 
 app.use('/', index);

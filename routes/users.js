@@ -13,14 +13,16 @@ router.get('/user', function(req, res, next) {
   var con = req.con;
   async.parallel([
     function(callback){
+      // con.connect();
       con.query('SELECT * FROM usuario', (errors, usuarios) => {
         callback(errors, usuarios);
       });
     }
   ], (err, data) => {
-        if (err) return next(err);
-        if (data) return res.json(data);
-        return res.sendStatus(200);
+      // con.end();
+      if (err) return next(err);
+      if (data) return res.json(data);
+      return res.sendStatus(200);
       // res.render('users');
   });
 });
