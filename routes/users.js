@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var jwt = require('jsonwebtoken');
 var async = require('async');
+let moment = require('moment');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -49,16 +50,20 @@ router.get('/user/:userid', function(req, res, next) {
 router.post('/user', function(req, res, next) {
   var con = req.con;
   var params = req.body;
+  params.fecha_creacion = moment().utc().format();
+  params.fecha_modificacion = moment().utc().format();
+  var values = Object.keys(params).map(function (key) { return params[key]; });
   async.parallel([
     function(callback){
       con.query('INSERT INTO usuario(nombre,' +
-                             'apellido,' +
-                             'cedula, ' +
-                             'email, ' +
-                             'contrasena, ' +
-                             'tipo_perfil, ' +
-                             'fecha_creacion, ' +
-                             'fecha_modificacion', params, (errors, usuario) => {
+                            'apellido,' +
+                            'cedula, ' +
+                            'email, ' +
+                            'contrasena, ' +
+                            'tipo_perfil, ' +
+                            'estado, ' +
+                            'fecha_creacion, ' +
+                            'fecha_modificacion) values(?,?,?,?,?,?,?,?,?)', values, (errors, usuario) => {
         callback(errors, usuario);
       });
     }
