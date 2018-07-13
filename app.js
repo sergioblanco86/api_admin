@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mysql = require('mysql');
 
-var connection = mysql.createConnection({
+var connection = mysql.createPool({
     host : 'localhost',
     user : 'root',
     password : '',
