@@ -8,9 +8,9 @@ var cors = require('cors');
 var mysql = require('mysql');
 
 var connection = mysql.createPool({
-    host : 'localhost',
+    host : 'eventos.ccgeehskphbz.us-east-1.rds.amazonaws.com',
     user : 'root',
-    password : '',
+    password : '3d11f4ab',
     database : 'eventos'
 });
 
