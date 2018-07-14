@@ -5,14 +5,6 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
-var mysql = require('mysql');
-
-var connection = mysql.createPool({
-    host : 'eventos.ccgeehskphbz.us-east-1.rds.amazonaws.com',
-    user : 'root',
-    password : '3d11f4ab',
-    database : 'eventos'
-});
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -33,10 +25,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // DB accesible to our router
-app.use((req, res ,next) => {
-    req.con = connection;
-    next(null);
-});
+// app.use((req, res ,next) => {
+//     req.con = connection;
+//     next(null);
+// });
 
 app.use('/', index);
 // app.use('/users', users);
