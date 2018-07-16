@@ -96,9 +96,9 @@ router.post('/user', ensureToken, function(req, res, next) {
     } else {
       
       var params = req.body;
+      params.estado = _.get(params, 'estado', 0);
       params.fecha_creacion = moment().utc().format();
       params.fecha_modificacion = moment().utc().format();
-      
       async.parallel([
         function(callback){
           passUtil.cryptPassword(params.contrasena, (err, hash) => {
@@ -107,7 +107,7 @@ router.post('/user', ensureToken, function(req, res, next) {
 
             params.contrasena = hash;
             var values = Object.keys(params).map(function (key) { return params[key]; });
-            con.query('INSERT INTO usuario' +
+            var sql = 'INSERT INTO usuario' +
                       '(nombre,' +
                       'apellido,' +
                       'cedula, ' +
@@ -116,24 +116,24 @@ router.post('/user', ensureToken, function(req, res, next) {
                       'tipo_perfil, ' +
                       'estado, ' +
                       'fecha_creacion, ' +
-                      'fecha_modificacion) values(?,?,?,?,?,?,?,?,?)', 
-                      values, 
-                      (error, usuario) => {
-                        var errorCode = _.get(error, 'code', null);
-                        if(errorCode == 'ER_DUP_ENTRY'){
-                          userController.checkExitencia(params.email, params.cedula, (err, duplicado) => {
-                            if (err) return next(err);
+                      'fecha_modificacion) values(?,?,?,?,?,?,?,?,?)';
+                      
+            con.query(sql, values, (error, usuario) => {
+                var errorCode = _.get(error, 'code', null);
+                if(errorCode == 'ER_DUP_ENTRY'){
+                  userController.checkExitencia(params.email, params.cedula, (err, duplicado) => {
+                    if (err) return next(err);
 
-                            var msg = "El campo " + duplicado + " ya esta registrado.";
-                            return res.status(300).json({status: 300, 
-                                                        message: msg,
-                                                        field: duplicado, 
-                                                        value: params[duplicado] });
-                          });
-                        } else {
-                          callback(error, usuario);
-                        }
-                      });
+                    var msg = "El campo " + duplicado + " ya esta registrado.";
+                    return res.status(300).json({status: 300, 
+                                                message: msg,
+                                                field: duplicado, 
+                                                value: params[duplicado] });
+                  });
+                } else {
+                  callback(error, usuario);
+                }
+              });
           });
         }
       ], (err, data) => {
@@ -147,58 +147,59 @@ router.post('/user', ensureToken, function(req, res, next) {
 });
 
 /* UPDATE user by id. */
-// router.put('/user/:userid', ensureToken, function(req, res, next) {
-//   jwt.verify(req.token, 'login_key', function(err, data) {
-//     if (err) {
-//       res.sendStatus(403);
-//     } else {
+router.put('/user/:userid', ensureToken, function(req, res, next) {
+  jwt.verify(req.token, 'login_key', function(err, data) {
+    if (err) {
+      res.sendStatus(403);
+    } else {
       
-//       var userid = req.params.userid;
-//       var params = req.body;
-//       async.parallel([
-//         function(callback){
-//           passUtil.cryptPassword(params.contrasena, (err, hash) => {
-//             if(err)
-//               return next(err);
+      var userid = req.params.userid;
+      var params = req.body;
+      async.parallel([
+        function(callback){
+          passUtil.cryptPassword(params.contrasena, (err, hash) => {
+            if(err)
+              return next(err);
             
-//             params.contrasena = hash;
-//             con.query("UPDATE usuario SET " +
-//                         "nombre = '" + params.nombre + "' " +
-//                         "apellido = '" + params.apellido + "' " +
-//                         "cedula = " + params.cedula + " " +
-//                         "email = '" + params.email + "' " +
-//                         "contrasena = '" + params.contrasena + "' " +
-//                         "tipo_perfil = " + params.tipo_perfil + " " +
-//                         "estado = " + params.estado + " " +
-//                         "fecha_modificacion = '" + moment().utc().format() + "' " +
-//                       "WHERE id = " + userid,
-//                         (error, usuario) => {
+            params.contrasena = hash;
+            var sql = "UPDATE usuario SET " +
+                      "nombre = '" + params.nombre + "', " +
+                      "apellido = '" + params.apellido + "', " +
+                      "cedula = " + params.cedula + ", " +
+                      "email = '" + params.email + "', " +
+                      "contrasena = '" + params.contrasena + "', " +
+                      "tipo_perfil = " + params.tipo_perfil + ", " +
+                      "estado = " + params.estado + ", " +
+                      "fecha_modificacion = '" + moment().utc().format() + "' " +
+                    "WHERE id = " + userid;
 
-//                           if(error.code == 'ER_DUP_ENTRY'){
-//                             userController.checkExitencia(params.email, params.cedula, (err, duplicado) => {
-//                               if (err) return next(err);
+            con.query(sql, (error, usuario) => {
+                var errorCode = _.get(error, 'code', null);
+                if(errorCode == 'ER_DUP_ENTRY'){
+                  userController.checkExitencia(params.email, params.cedula, (err, duplicado) => {
+                    if (err) return next(err);
 
-//                               var msg = "El campo " + duplicado + " ya esta registrado.";
-//                               return res.status(300).json({status: 300, 
-//                                                           message: msg,
-//                                                           field: duplicado, 
-//                                                           value: params[duplicado] });
-//                             });
-//                           } else {
-//                             callback(error, usuario);
-//                           }
-//                         });
-//           });
-//         }
-//       ], (err, data) => {
-//             if (err) return next(err);
-//             if (data) return res.json(data);
-//             return res.sendStatus(200);
-//           // res.render('users');
-//       });
-//     }
-//   });
-// });
+                    var msg = "El campo " + duplicado + " ya esta registrado.";
+                    return res.status(300).json({status: 300, 
+                                                message: msg,
+                                                field: duplicado, 
+                                                value: params[duplicado] });
+                  });
+                } else {
+                  callback(error, usuario);
+                }
+            });
+          });
+        }
+      ], (err, data) => {
+            if (err) return next(err);
+            if (data) return res.json(data);
+            return res.sendStatus(200);
+          // res.render('users');
+      });
+    }
+  });
+});
 
 /* LOGIN user. */
 router.post('/user/login', (req, res, next) => {
