@@ -156,7 +156,7 @@ router.post('/user/login', (req, res, next) => {
       if (!_.isEmpty(data) && !_.isEmpty(data[0])) {
         /// then return a token, secret key should be an env variable
         var usuario = data[0];
-        const token = jwt.sign({usuario}, 'login_key');
+        const token = jwt.sign({usuario, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24),}, 'login_key');
         return res.json({
           message: 'Authenticated! Use this token in the "Authorization" header',
           token: token
