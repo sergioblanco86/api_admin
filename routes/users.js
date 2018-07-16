@@ -15,6 +15,31 @@ router.get('/', function(req, res, next) {
 });
 
 /* GET users listing. */
+router.get('/user/tipo_perfil', ensureToken, function(req, res, next) {
+  jwt.verify(req.token, 'login_key', function(err, data) {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      
+      async.parallel([
+        function(callback){
+          // con.connect();
+          con.query('SELECT * FROM tipo_perfil', (errors, usuarios) => {
+            callback(errors, usuarios);
+          });
+        }
+      ], (err, data) => {
+          // con.end();
+          if (err) return next(err);
+          if (data) return res.json(data);
+          return res.sendStatus(200);
+          // res.render('users');
+      });
+    }
+  });
+});
+
+/* GET users listing. */
 router.get('/user', ensureToken, function(req, res, next) {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
@@ -94,8 +119,8 @@ router.post('/user', ensureToken, function(req, res, next) {
                       'fecha_modificacion) values(?,?,?,?,?,?,?,?,?)', 
                       values, 
                       (error, usuario) => {
-
-                        if(error.code == 'ER_DUP_ENTRY'){
+                        var errorCode = _.get(error, 'code', null);
+                        if(errorCode == 'ER_DUP_ENTRY'){
                           userController.checkExitencia(params.email, params.cedula, (err, duplicado) => {
                             if (err) return next(err);
 
@@ -120,6 +145,60 @@ router.post('/user', ensureToken, function(req, res, next) {
     }
   });
 });
+
+/* UPDATE user by id. */
+// router.put('/user/:userid', ensureToken, function(req, res, next) {
+//   jwt.verify(req.token, 'login_key', function(err, data) {
+//     if (err) {
+//       res.sendStatus(403);
+//     } else {
+      
+//       var userid = req.params.userid;
+//       var params = req.body;
+//       async.parallel([
+//         function(callback){
+//           passUtil.cryptPassword(params.contrasena, (err, hash) => {
+//             if(err)
+//               return next(err);
+            
+//             params.contrasena = hash;
+//             con.query("UPDATE usuario SET " +
+//                         "nombre = '" + params.nombre + "' " +
+//                         "apellido = '" + params.apellido + "' " +
+//                         "cedula = " + params.cedula + " " +
+//                         "email = '" + params.email + "' " +
+//                         "contrasena = '" + params.contrasena + "' " +
+//                         "tipo_perfil = " + params.tipo_perfil + " " +
+//                         "estado = " + params.estado + " " +
+//                         "fecha_modificacion = '" + moment().utc().format() + "' " +
+//                       "WHERE id = " + userid,
+//                         (error, usuario) => {
+
+//                           if(error.code == 'ER_DUP_ENTRY'){
+//                             userController.checkExitencia(params.email, params.cedula, (err, duplicado) => {
+//                               if (err) return next(err);
+
+//                               var msg = "El campo " + duplicado + " ya esta registrado.";
+//                               return res.status(300).json({status: 300, 
+//                                                           message: msg,
+//                                                           field: duplicado, 
+//                                                           value: params[duplicado] });
+//                             });
+//                           } else {
+//                             callback(error, usuario);
+//                           }
+//                         });
+//           });
+//         }
+//       ], (err, data) => {
+//             if (err) return next(err);
+//             if (data) return res.json(data);
+//             return res.sendStatus(200);
+//           // res.render('users');
+//       });
+//     }
+//   });
+// });
 
 /* LOGIN user. */
 router.post('/user/login', (req, res, next) => {
