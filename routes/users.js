@@ -107,18 +107,27 @@ router.post('/user', ensureToken, function(req, res, next) {
 
             params.contrasena = hash;
             var values = Object.keys(params).map(function (key) { return params[key]; });
-            var sql = 'INSERT INTO usuario' +
-                      '(nombre,' +
-                      'apellido,' +
-                      'cedula, ' +
-                      'email, ' +
-                      'contrasena, ' +
-                      'tipo_perfil, ' +
-                      'estado, ' +
-                      'fecha_creacion, ' +
-                      'fecha_modificacion) values(?,?,?,?,?,?,?,?,?)';
+            var sql = "INSERT INTO usuario" +
+                      "(nombre," +
+                      "apellido," +
+                      "cedula, " +
+                      "email, " +
+                      "contrasena, " +
+                      "tipo_perfil, " +
+                      "estado, " +
+                      "fecha_creacion, " +
+                      "fecha_modificacion)" + 
+                      "VALUES('" + params.nombre + "', " + 
+                              "'" + params.apellido + "', " +
+                              params.cedula + ", " +
+                              "'" + params.email + "', " +
+                              "'" + params.contrasena + "', " +
+                              params.tipo_perfil + ", " +
+                              params.estado + ", " +
+                              "'" + params.fecha_creacion + "', " +
+                              "'" + params.fecha_modificacion + "')";
                       
-            con.query(sql, values, (error, usuario) => {
+            con.query(sql, (error, usuario) => {
                 var errorCode = _.get(error, 'code', null);
                 if(errorCode == 'ER_DUP_ENTRY'){
                   userController.checkExitencia(params.email, params.cedula, (err, duplicado) => {
