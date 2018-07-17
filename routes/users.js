@@ -164,19 +164,28 @@ router.put('/user/:userid', ensureToken, function(req, res, next) {
       
       var userid = req.params.userid;
       var params = req.body;
-      async.parallel([
+      async.waterfall([
         function(callback){
-          passUtil.cryptPassword(params.contrasena, (err, hash) => {
-            if(err)
-              return next(err);
-            
-            params.contrasena = hash;
-            var sql = "UPDATE usuario SET " +
+          if(_.has(params, 'contrasena')){
+            passUtil.cryptPassword(params.contrasena, (err, hash) => {
+              if(err)
+                return next(err);
+              
+              callback(err, hash);
+            });
+          }else{
+            callback(null, null);
+          }
+        }, function(contra, callback){
+
+          params.contrasena = contra;
+          var sqlUpdateContra = (params.contrasena != null) ? "contrasena = '" + params.contrasena + "', " : "";
+          var sql = "UPDATE usuario SET " +
                       "nombre = '" + params.nombre + "', " +
                       "apellido = '" + params.apellido + "', " +
                       "cedula = " + params.cedula + ", " +
                       "email = '" + params.email + "', " +
-                      "contrasena = '" + params.contrasena + "', " +
+                      sqlUpdateContra +
                       "tipo_perfil = " + params.tipo_perfil + ", " +
                       "estado = " + params.estado + ", " +
                       "fecha_modificacion = '" + moment().utc().format() + "' " +
@@ -198,7 +207,6 @@ router.put('/user/:userid', ensureToken, function(req, res, next) {
                   callback(error, usuario);
                 }
             });
-          });
         }
       ], (err, data) => {
             if (err) return next(err);
