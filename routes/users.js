@@ -96,7 +96,7 @@ router.post('/user', ensureToken, function(req, res, next) {
     } else {
       
       var params = req.body;
-      params.estado = _.get(params, 'estado', 0);
+      params.estado = _.get(params, 'estado', 1);
       params.fecha_creacion = moment().utc().format();
       params.fecha_modificacion = moment().utc().format();
       async.parallel([
