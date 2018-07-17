@@ -220,7 +220,7 @@ router.post('/user/login', (req, res, next) => {
   
   async.parallel([
     function(callback){
-      con.query("SELECT * FROM usuario WHERE email = '" + email + "' ", (errors, usuario) => {
+      con.query("SELECT * FROM usuario WHERE email = '" + email + "'", (errors, usuario) => {
         if(errors)
                 callback(err, null);
         if (!_.isEmpty(usuario)) {      
@@ -243,13 +243,19 @@ router.post('/user/login', (req, res, next) => {
       if (err) return next(err, {message: err.message});
 
       if (!_.isEmpty(data) && !_.isEmpty(data[0])) {
-        /// then return a token, secret key should be an env variable
-        var usuario = data[0];
-        const token = jwt.sign({usuario, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24),}, 'login_key');
-        return res.json({
-          message: 'Authenticated! Use this token in the "Authorization" header',
-          token: token
-        });
+        if(data[0][0].estado == 1){
+
+          /// then return a token, secret key should be an env variable
+          var usuario = data[0];
+          const token = jwt.sign({usuario, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24),}, 'login_key');
+          return res.json({
+            message: 'Authenticated! Use this token in the "Authorization" header',
+            token: token
+          });
+        }else{
+          var msg = "El usuario se encuentra inactivo.";
+          return res.status(300).json({status: 300, message: msg});
+        }
       }else{
         var msg = "Email o Contraseña incorrectos.";
         return res.status(300).json({status: 300, message: msg});
