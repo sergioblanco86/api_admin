@@ -161,59 +161,64 @@ router.put('/user/:userid', ensureToken, function(req, res, next) {
     if (err) {
       res.sendStatus(403);
     } else {
-      
+      var loggedUser = data.usuario;
       var userid = req.params.userid;
       var params = req.body;
-      async.waterfall([
-        function(callback){
-          if(_.has(params, 'contrasena')){
-            passUtil.cryptPassword(params.contrasena, (err, hash) => {
-              if(err)
-                return next(err);
-              
-              callback(err, hash);
-            });
-          }else{
-            callback(null, null);
+      if(loggedUser[0].id == userid || loggedUser[0].tipo_perfil == 1){
+        async.waterfall([
+          function(callback){
+            if(_.has(params, 'contrasena')){
+              passUtil.cryptPassword(params.contrasena, (err, hash) => {
+                if(err)
+                  return next(err);
+                
+                callback(err, hash);
+              });
+            }else{
+              callback(null, null);
+            }
+          }, function(contra, callback){
+
+            params.contrasena = contra;
+            var sqlUpdateContra = (params.contrasena != null) ? "contrasena = '" + params.contrasena + "', " : "";
+            var sql = "UPDATE usuario SET " +
+                        "nombre = '" + params.nombre + "', " +
+                        "apellido = '" + params.apellido + "', " +
+                        "cedula = " + params.cedula + ", " +
+                        "email = '" + params.email + "', " +
+                        sqlUpdateContra +
+                        "tipo_perfil = " + params.tipo_perfil + ", " +
+                        "estado = " + params.estado + ", " +
+                        "fecha_modificacion = '" + moment().utc().format() + "' " +
+                      "WHERE id = " + userid;
+
+              con.query(sql, (error, usuario) => {
+                  var errorCode = _.get(error, 'code', null);
+                  if(errorCode == 'ER_DUP_ENTRY'){
+                    userController.checkExitencia(params.email, params.cedula, (err, duplicado) => {
+                      if (err) return next(err);
+
+                      var msg = "El campo " + duplicado + " ya esta registrado.";
+                      return res.status(300).json({status: 300, 
+                                                  message: msg,
+                                                  field: duplicado, 
+                                                  value: params[duplicado] });
+                    });
+                  } else {
+                    callback(error, usuario);
+                  }
+              });
           }
-        }, function(contra, callback){
-
-          params.contrasena = contra;
-          var sqlUpdateContra = (params.contrasena != null) ? "contrasena = '" + params.contrasena + "', " : "";
-          var sql = "UPDATE usuario SET " +
-                      "nombre = '" + params.nombre + "', " +
-                      "apellido = '" + params.apellido + "', " +
-                      "cedula = " + params.cedula + ", " +
-                      "email = '" + params.email + "', " +
-                      sqlUpdateContra +
-                      "tipo_perfil = " + params.tipo_perfil + ", " +
-                      "estado = " + params.estado + ", " +
-                      "fecha_modificacion = '" + moment().utc().format() + "' " +
-                    "WHERE id = " + userid;
-
-            con.query(sql, (error, usuario) => {
-                var errorCode = _.get(error, 'code', null);
-                if(errorCode == 'ER_DUP_ENTRY'){
-                  userController.checkExitencia(params.email, params.cedula, (err, duplicado) => {
-                    if (err) return next(err);
-
-                    var msg = "El campo " + duplicado + " ya esta registrado.";
-                    return res.status(300).json({status: 300, 
-                                                message: msg,
-                                                field: duplicado, 
-                                                value: params[duplicado] });
-                  });
-                } else {
-                  callback(error, usuario);
-                }
-            });
-        }
-      ], (err, data) => {
-            if (err) return next(err);
-            if (data) return res.json(data);
-            return res.sendStatus(200);
-          // res.render('users');
-      });
+        ], (err, data) => {
+              if (err) return next(err);
+              if (data) return res.json(data);
+              return res.sendStatus(200);
+            // res.render('users');
+        });
+      } else {
+        var msg = "Solo el Administrador o dueño de la cuenta puede modificar.";
+        return res.status(300).json({status: 300, message: msg});
+      }
     }
   });
 });
