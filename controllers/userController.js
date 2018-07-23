@@ -5,6 +5,24 @@ let moment = require('moment');
 
 let passUtil = require('../utils/passwordUtil');
 
+const obtenerPerfiles = (done) => {
+  con.query('SELECT * FROM tipo_perfil', (errors, result) => {
+    return done(errors, result);
+  });
+};
+
+const obtenerUsuarios = (done) => {
+  con.query('SELECT * FROM usuario', (errors, result) => {
+    return done(errors, result);
+  });
+};
+
+const obtenerUsuarioById = (userid, done) => {
+  con.query('SELECT * FROM usuario WHERE id = ' + userid, (errors, result) => {
+    return done(errors, result);
+  });
+};
+
 const crearUsuario = (usuarioParams, done) => {
     var params = usuarioParams;
 
@@ -126,7 +144,10 @@ const checkExitencia = (email, cedula, done) => {
 };
 
 module.exports = {
-    checkExitencia,
-    crearUsuario,
-    modificarUsuario
+  obtenerPerfiles,
+  obtenerUsuarios,
+  obtenerUsuarioById,
+  checkExitencia,
+  crearUsuario,
+  modificarUsuario
 };

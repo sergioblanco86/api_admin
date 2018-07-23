@@ -7,6 +7,7 @@ let _ = require('lodash');
 const con = require('../config/database');
 
 let passUtil = require('../utils/passwordUtil');
+let jwtUtil = require('../utils/jwtUtil');
 let userController = require('../controllers/userController');
 
 /* GET users listing. */
@@ -15,81 +16,56 @@ router.get('/', function(req, res, next) {
 });
 
 /* GET users listing. */
-router.get('/user/tipo_perfil', ensureToken, function(req, res, next) {
+router.get('/user/tipo_perfil', jwtUtil.ensureToken, function(req, res, next) {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
       res.sendStatus(403);
     } else {
       
-      async.parallel([
-        function(callback){
-          // con.connect();
-          con.query('SELECT * FROM tipo_perfil', (errors, usuarios) => {
-            callback(errors, usuarios);
-          });
-        }
-      ], (err, data) => {
-          // con.end();
-          if (err) return next(err);
-          if (data) return res.json(data);
-          return res.sendStatus(200);
-          // res.render('users');
+    userController.obtenerPerfiles((err, result) => {
+      if (err) return next(err);
+      if (result) return res.json(result);
+      return res.sendStatus(200);
       });
     }
   });
 });
 
 /* GET users listing. */
-router.get('/user', ensureToken, function(req, res, next) {
+router.get('/user', jwtUtil.ensureToken, function(req, res, next) {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
       res.sendStatus(403);
     } else {
       
-      async.parallel([
-        function(callback){
-          // con.connect();
-          con.query('SELECT * FROM usuario', (errors, usuarios) => {
-            callback(errors, usuarios);
-          });
-        }
-      ], (err, data) => {
-          // con.end();
-          if (err) return next(err);
-          if (data) return res.json(data);
-          return res.sendStatus(200);
-          // res.render('users');
-      });
+    userController.obtenerUsuarios((err, result) => {
+      if (err) return next(err);
+      if (result) return res.json(result);
+      return res.sendStatus(200);
+    });
     }
   });
 });
 
 /* GET user by id. */
-router.get('/user/:userid', ensureToken, function(req, res, next) {
+router.get('/user/:userid', jwtUtil.ensureToken, function(req, res, next) {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
       res.sendStatus(403);
     } else {
-      
       var userid = req.params.userid;
-      async.parallel([
-        function(callback){
-          con.query('SELECT * FROM usuario WHERE id = ' + userid, (errors, usuario) => {
-            callback(errors, usuario);
-          });
-        }
-      ], (err, data) => {
-            if (err) return next(err);
-            if (data) return res.json(data);
-            return res.sendStatus(200);
-          // res.render('users');
+
+      userController.obtenerUsuarioById(userid, (err, result) => {
+        if (err) return next(err);
+        if (result) return res.json(result);
+        return res.sendStatus(200);
       });
     }
   });
 });
 
 /* CREATE user. */
-router.post('/user', ensureToken, function(req, res, next) {
+router.post('/user', jwtUtil.ensureToken, function(req, res, next) {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
       res.sendStatus(403);
@@ -100,10 +76,10 @@ router.post('/user', ensureToken, function(req, res, next) {
       params.fecha_creacion = moment().utc().format();
       params.fecha_modificacion = moment().utc().format();
 
-      userController.crearUsuario(params, (err, data) => {
+      userController.crearUsuario(params, (err, result) => {
         if (err) return next(err);
 
-        if (data) return res.json(data);
+        if (result) return res.json(result);
         return res.sendStatus(200);
       });      
     }
@@ -111,7 +87,7 @@ router.post('/user', ensureToken, function(req, res, next) {
 });
 
 /* UPDATE user by id. */
-router.put('/user/:userid', ensureToken, function(req, res, next) {
+router.put('/user/:userid', jwtUtil.ensureToken, function(req, res, next) {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
       res.sendStatus(403);
@@ -120,10 +96,10 @@ router.put('/user/:userid', ensureToken, function(req, res, next) {
       var userid = req.params.userid;
       var params = req.body;
       if(loggedUser[0].id == userid || loggedUser[0].tipo_perfil == 1){
-        userController.modificarUsuario(userid, params, (err, data) => {
+        userController.modificarUsuario(userid, params, (err, result) => {
           if (err) return next(err);
 
-          if (data) return res.json(data);
+          if (result) return res.json(result);
           return res.sendStatus(200);
         });
       } else {
@@ -188,7 +164,7 @@ router.post('/user/login', (req, res, next) => {
   
 });
 
-router.get('/user/protected', ensureToken, (req, res) => {
+router.get('/user/protected', jwtUtil.ensureToken, (req, res) => {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
       res.sendStatus(403);
@@ -199,17 +175,5 @@ router.get('/user/protected', ensureToken, (req, res) => {
     }
   });
 });
-
-function ensureToken(req, res, next) {
-  const bearerHeader = req.headers["authorization"];
-  if (typeof bearerHeader !== 'undefined') {
-    const bearer = bearerHeader.split(" ");
-    const bearerToken = bearer[1];
-    req.token = bearerToken;
-    next();
-  } else {
-    res.sendStatus(403);
-  }
-}
 
 module.exports = router;
