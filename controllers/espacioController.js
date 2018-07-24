@@ -55,7 +55,7 @@ const modificarRegistro = (espacioid, espacioParams, done) => {
     var sql = "UPDATE espacio SET " +
                 "nombre = '" + params.nombre + "', " +
                 "ubicacion = '" + params.ubicacion + "', " +
-                "dias_disponibles = " + params.disponibilidad + ", " +
+                "disponibilidad = " + params.disponibilidad + ", " +
                 "aprobadores = " + params.aprobadores + ", " +
                 "elementos = " + params.elementos + ", " +
                 "fecha_modificacion = '" + moment().utc().format() + "' " +
