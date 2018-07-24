@@ -2,16 +2,46 @@ var async = require('async');
 const con = require('../config/database');
 let _ = require('lodash');
 let moment = require('moment');
+var mysql = require('mysql');
 
 const obtenerEspacios = (done) => {
   con.query('SELECT * FROM espacio', (errors, result) => {
-    return done(errors, result);
+    async.waterfall([
+      function (callback){
+        if(!_.isEmpty(result)){
+          _.forEach(result, function(item) {
+            item.disponibilidad = (!_.isEmpty(item.disponibilidad)) ? JSON.parse(item.disponibilidad) : item.disponibilidad;
+            item.aprobadores = (!_.isEmpty(item.aprobadores)) ? JSON.parse(item.aprobadores) : item.aprobadores;
+            item.elementos = (!_.isEmpty(item.elementos)) ? JSON.parse(item.elementos) : item.elementos;
+          });
+        } 
+
+        callback(null, result);
+      }
+    ], (err, result) => {
+      return done(errors, result);
+    });
+    
   });
 };
 
 const obtenerEspacioById = (espacioid, done) => {
   con.query('SELECT * FROM espacio WHERE idespacio = ' + espacioid, (errors, result) => {
-    return done(errors, result);
+    async.waterfall([
+      function (callback){
+        if(!_.isEmpty(result)){
+          _.forEach(result, function(item) {
+            item.disponibilidad = (!_.isEmpty(item.disponibilidad)) ? JSON.parse(item.disponibilidad) : item.disponibilidad;
+            item.aprobadores = (!_.isEmpty(item.aprobadores)) ? JSON.parse(item.aprobadores) : item.aprobadores;
+            item.elementos = (!_.isEmpty(item.elementos)) ? JSON.parse(item.elementos) : item.elementos;
+          });
+        } 
+
+        callback(null, result);
+      }
+    ], (err, result) => {
+      return done(errors, result);
+    });
   });
 };
 
@@ -23,22 +53,12 @@ const eliminarEspacio = (espacioid, done) => {
 
 const crearResgistro = (espacioParams, done) => {
     var params = espacioParams;
-            
-    var sql = ' INSERT INTO espacio'  +
-                ' (nombre,'  +
-                ' ubicacion,'  +
-                ' disponibilidad, '  +
-                ' aprobadores, '  +
-                ' elementos, '  +
-                ' fecha_creacion, '  +
-                ' fecha_modificacion)'  + 
-                ' VALUES(" '  + params.nombre + ' ", '  + 
-                        ' " '  + params.ubicacion + ' ", '  +
-                        ' " '  + params.disponibilidad + ' ", '  +
-                        ' " '  + params.aprobadores + ' ", '  +
-                        ' " '  + params.elementos + ' ", '  +
-                        ' " '  + params.fecha_creacion + ' ", '  +
-                        ' " ' + params.fecha_modificacion + ' " )';
+    params.disponibilidad = JSON.stringify(params.disponibilidad); 
+    params.aprobadores = JSON.stringify(params.aprobadores); 
+    params.elementos = JSON.stringify(params.elementos); 
+    var sql = "INSERT INTO espacio SET ?";
+    var inserts = params;
+    sql = mysql.format(sql, inserts);
                 
     con.query(sql, (error, espacio) => {
         
@@ -51,15 +71,17 @@ const crearResgistro = (espacioParams, done) => {
 
 const modificarRegistro = (espacioid, espacioParams, done) => {
     var params = espacioParams;
-
-    var sql = ' UPDATE espacio SET  '  +
-                ' nombre = " '  + params.nombre +  ' ",  '  +
-                ' ubicacion = " '  + params.ubicacion +  ' ",  '  +
-                ' disponibilidad = " '  + params.disponibilidad +  ' ",  '  +
-                ' aprobadores = " '  + params.aprobadores +  ' ",  '  +
-                ' elementos = " '  + params.elementos +  ' ",  '  +
-                ' fecha_modificacion = " '  + moment().utc().format() +  ' "  '  +
-            ' WHERE idespacio =  '  + espacioid;
+    var sql = "UPDATE espacio SET ? WHERE idespacio = " + espacioid;
+    var inserts = params;
+    sql = mysql.format(sql, inserts);
+    // var sql = ' UPDATE espacio SET  '  +
+    //             ' nombre = " '  + params.nombre +  ' ",  '  +
+    //             ' ubicacion = " '  + params.ubicacion +  ' ",  '  +
+    //             ' disponibilidad = " '  + params.disponibilidad +  ' ",  '  +
+    //             ' aprobadores = " '  + params.aprobadores +  ' ",  '  +
+    //             ' elementos = " '  + params.elementos +  ' ",  '  +
+    //             ' fecha_modificacion = " '  + moment().utc().format() +  ' "  '  +
+    //         ' WHERE idespacio =  '  + espacioid;
 
     con.query(sql, (error, espacio) => {
         

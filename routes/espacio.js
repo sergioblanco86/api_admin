@@ -70,7 +70,7 @@ router.post('/espacio', jwtUtil.ensureToken, function(req, res, next) {
     } else {
       
       var params = req.body;
-      params.estado = _.get(params, 'estado', 1);
+      // params.estado = _.get(params, 'estado', 1);
       params.fecha_creacion = moment().utc().format();
       params.fecha_modificacion = moment().utc().format();
 
@@ -93,6 +93,7 @@ router.put('/espacio/:userid', jwtUtil.ensureToken, function(req, res, next) {
     //   var loggedUser = data.usuario;
       var userid = req.params.userid;
       var params = req.body;
+      params.fecha_modificacion = moment().utc().format();
     //   if(loggedUser[0].id == userid || loggedUser[0].tipo_perfil == 1){
         espacioController.modificarRegistro(userid, params, (err, result) => {
           if (err) return next(err);
