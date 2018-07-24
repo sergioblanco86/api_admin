@@ -34,7 +34,7 @@ const crearResgistro = (espacioParams, done) => {
                 "fecha_modificacion)" + 
                 "VALUES('" + params.nombre + "', " + 
                         "'" + params.ubicacion + "', " +
-                        params.disponibilidad + ", " +
+                        "'" +params.disponibilidad + "', " +
                         "'" + params.aprobadores + "', " +
                         params.elementos + ", " +
                         "'" + params.fecha_creacion + "', " +
@@ -55,9 +55,9 @@ const modificarRegistro = (espacioid, espacioParams, done) => {
     var sql = "UPDATE espacio SET " +
                 "nombre = '" + params.nombre + "', " +
                 "ubicacion = '" + params.ubicacion + "', " +
-                "disponibilidad = " + params.disponibilidad + ", " +
-                "aprobadores = " + params.aprobadores + ", " +
-                "elementos = " + params.elementos + ", " +
+                "disponibilidad = '" + params.disponibilidad + "', " +
+                "aprobadores = '" + params.aprobadores + "', " +
+                "elementos = '" + params.elementos + "', " +
                 "fecha_modificacion = '" + moment().utc().format() + "' " +
             "WHERE idespacio = " + espacioid;
 
