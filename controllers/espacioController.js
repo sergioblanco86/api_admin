@@ -24,21 +24,21 @@ const eliminarEspacio = (espacioid, done) => {
 const crearResgistro = (espacioParams, done) => {
     var params = espacioParams;
             
-    var sql = "INSERT INTO espacio" +
-                "(nombre," +
-                "ubicacion," +
-                "disponibilidad, " +
-                "aprobadores, " +
-                "elementos, " +
-                "fecha_creacion, " +
-                "fecha_modificacion)" + 
-                "VALUES('" + params.nombre + "', " + 
-                        "'" + params.ubicacion + "', " +
-                        "'" +params.disponibilidad + "', " +
-                        "'" + params.aprobadores + "', " +
-                        params.elementos + ", " +
-                        "'" + params.fecha_creacion + "', " +
-                        "'" + params.fecha_modificacion + "')";
+    var sql = ' INSERT INTO espacio'  +
+                ' (nombre,'  +
+                ' ubicacion,'  +
+                ' disponibilidad, '  +
+                ' aprobadores, '  +
+                ' elementos, '  +
+                ' fecha_creacion, '  +
+                ' fecha_modificacion)'  + 
+                ' VALUES(" '  + params.nombre + ' ", '  + 
+                        ' " '  + params.ubicacion + ' ", '  +
+                        ' " '  + params.disponibilidad + ' ", '  +
+                        ' " '  + params.aprobadores + ' ", '  +
+                        ' " '  + params.elementos + ' ", '  +
+                        ' " '  + params.fecha_creacion + ' ", '  +
+                        ' " ' + params.fecha_modificacion + ' " )';
                 
     con.query(sql, (error, espacio) => {
         
@@ -52,14 +52,14 @@ const crearResgistro = (espacioParams, done) => {
 const modificarRegistro = (espacioid, espacioParams, done) => {
     var params = espacioParams;
 
-    var sql = "UPDATE espacio SET " +
-                "nombre = '" + params.nombre + "', " +
-                "ubicacion = '" + params.ubicacion + "', " +
-                "disponibilidad = '" + params.disponibilidad + "', " +
-                "aprobadores = '" + params.aprobadores + "', " +
-                "elementos = '" + params.elementos + "', " +
-                "fecha_modificacion = '" + moment().utc().format() + "' " +
-            "WHERE idespacio = " + espacioid;
+    var sql = ' UPDATE espacio SET  '  +
+                ' nombre = " '  + params.nombre +  ' ",  '  +
+                ' ubicacion = " '  + params.ubicacion +  ' ",  '  +
+                ' disponibilidad = " '  + params.disponibilidad +  ' ",  '  +
+                ' aprobadores = " '  + params.aprobadores +  ' ",  '  +
+                ' elementos = " '  + params.elementos +  ' ",  '  +
+                ' fecha_modificacion = " '  + moment().utc().format() +  ' "  '  +
+            ' WHERE idespacio =  '  + espacioid;
 
     con.query(sql, (error, espacio) => {
         
