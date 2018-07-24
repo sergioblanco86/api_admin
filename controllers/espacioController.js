@@ -71,17 +71,12 @@ const crearResgistro = (espacioParams, done) => {
 
 const modificarRegistro = (espacioid, espacioParams, done) => {
     var params = espacioParams;
+    params.disponibilidad = JSON.stringify(params.disponibilidad); 
+    params.aprobadores = JSON.stringify(params.aprobadores); 
+    params.elementos = JSON.stringify(params.elementos); 
     var sql = "UPDATE espacio SET ? WHERE idespacio = " + espacioid;
     var inserts = params;
     sql = mysql.format(sql, inserts);
-    // var sql = ' UPDATE espacio SET  '  +
-    //             ' nombre = " '  + params.nombre +  ' ",  '  +
-    //             ' ubicacion = " '  + params.ubicacion +  ' ",  '  +
-    //             ' disponibilidad = " '  + params.disponibilidad +  ' ",  '  +
-    //             ' aprobadores = " '  + params.aprobadores +  ' ",  '  +
-    //             ' elementos = " '  + params.elementos +  ' ",  '  +
-    //             ' fecha_modificacion = " '  + moment().utc().format() +  ' "  '  +
-    //         ' WHERE idespacio =  '  + espacioid;
 
     con.query(sql, (error, espacio) => {
         
