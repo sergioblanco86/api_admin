@@ -59,7 +59,7 @@ const crearResgistro = (espacioParams, done) => {
     var sql = "INSERT INTO espacio SET ?";
     var inserts = params;
     sql = mysql.format(sql, inserts);
-                
+    
     con.query(sql, (error, espacio) => {
         
         if (error) return done(error);

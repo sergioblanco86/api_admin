@@ -70,7 +70,7 @@ router.post('/espacio', jwtUtil.ensureToken, function(req, res, next) {
     } else {
       
       var params = req.body;
-      // params.estado = _.get(params, 'estado', 1);
+      params.estado = _.get(params, 'estado', 1);
       params.fecha_creacion = moment().utc().format();
       params.fecha_modificacion = moment().utc().format();
 
