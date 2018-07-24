@@ -19,7 +19,7 @@ const obtenerEspacios = (done) => {
         callback(null, result);
       }
     ], (err, result) => {
-      return done(errors, result);
+      return done(err, result);
     });
     
   });
@@ -37,10 +37,10 @@ const obtenerEspacioById = (espacioid, done) => {
           });
         } 
 
-        callback(null, result);
+        callback(errors, result);
       }
     ], (err, result) => {
-      return done(errors, result);
+      return done(err, result);
     });
   });
 };
