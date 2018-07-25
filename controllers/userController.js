@@ -80,7 +80,9 @@ const modificarUsuario = (userid, usuarioParams, done) => {
         }, function(contra, callback){
 
           params.contrasena = contra;
-          params.contrasena = (params.contrasena != null) ? params.contrasena : " ";
+          if(!_.has(params, 'editC')){
+            delete params.contrasena;
+          }
           var sql = "UPDATE usuario SET ? WHERE id = " + userid;
           var inserts = params;
           sql = mysql.format(sql, inserts);
