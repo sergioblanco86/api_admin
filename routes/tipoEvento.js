@@ -51,13 +51,18 @@ router.delete('/tipoEvento/:tipoEventoid', jwtUtil.ensureToken, function(req, re
       if (err) {
         res.sendStatus(403);
       } else {
+        var loggedUser = data.usuario;
         var tipoEventoid = req.params.tipoEventoid;
-  
-        tipoEventoController.eliminarTipoEvento(tipoEventoid, (err, result) => {
-          if (err) return next(err);
-          if (result) return res.json(result);
-          return res.sendStatus(200);
-        });
+        if(loggedUser[0].tipo_perfil == 1 || loggedUser[0].tipo_perfil == 2){
+          tipoEventoController.eliminarTipoEvento(tipoEventoid, (err, result) => {
+            if (err) return next(err);
+            if (result) return res.json(result);
+            return res.sendStatus(200);
+          });
+        } else {
+          var msg = "Solo el Administrador o Aprobador puede eliminar.";
+          return res.status(300).json({status: 300, message: msg});
+        }
       }
     });
   });
@@ -68,17 +73,21 @@ router.post('/tipoEvento', jwtUtil.ensureToken, function(req, res, next) {
     if (err) {
       res.sendStatus(403);
     } else {
-      
-        var params = req.body;
-        params.fecha_creacion = moment().utc().format();
-        params.fecha_modificacion = moment().utc().format();
-
+      var loggedUser = data.usuario;
+      var params = req.body;
+      params.fecha_creacion = moment().utc().format();
+      params.fecha_modificacion = moment().utc().format();
+      if(loggedUser[0].tipo_perfil == 1 || loggedUser[0].tipo_perfil == 2){
         tipoEventoController.crearResgistro(params, (err, result) => {
             if (err) return next(err);
 
             if (result) return res.json(result);
             return res.sendStatus(200);
-        });      
+        });  
+      } else {
+        var msg = "Solo el Administrador o Aprobador puede crear.";
+        return res.status(300).json({status: 300, message: msg});
+      } 
     }
   });
 });
@@ -89,21 +98,21 @@ router.put('/tipoEvento/:tipoEventoid', jwtUtil.ensureToken, function(req, res, 
     if (err) {
       res.sendStatus(403);
     } else {
-    //   var loggedUser = data.usuario;
+      var loggedUser = data.usuario;
       var tipoEventoid = req.params.tipoEventoid;
       var params = req.body;
       params.fecha_modificacion = moment().utc().format();
-    //   if(loggedUser[0].id == userid || loggedUser[0].tipo_perfil == 1){
+      if(loggedUser[0].tipo_perfil == 1 || loggedUser[0].tipo_perfil == 2){
         tipoEventoController.modificarRegistro(tipoEventoid, params, (err, result) => {
           if (err) return next(err);
 
           if (result) return res.json(result);
           return res.sendStatus(200);
         });
-    //   } else {
-    //     var msg = "Solo el Administrador o dueño de la cuenta puede modificar.";
-    //     return res.status(300).json({status: 300, message: msg});
-    //   }
+      } else {
+        var msg = "Solo el Administrador o Aprobador puede modificar.";
+        return res.status(300).json({status: 300, message: msg});
+      }
     }
   });
 });

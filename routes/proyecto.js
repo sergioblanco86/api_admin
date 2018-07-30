@@ -51,13 +51,18 @@ router.delete('/proyecto/:proyectoid', jwtUtil.ensureToken, function(req, res, n
       if (err) {
         res.sendStatus(403);
       } else {
+        var loggedUser = data.usuario;
         var proyectoid = req.params.proyectoid;
-  
-        proyectoController.eliminarProyecto(proyectoid, (err, result) => {
-          if (err) return next(err);
-          if (result) return res.json(result);
-          return res.sendStatus(200);
-        });
+        if(loggedUser[0].tipo_perfil == 1 || loggedUser[0].tipo_perfil == 2){
+          proyectoController.eliminarProyecto(proyectoid, (err, result) => {
+            if (err) return next(err);
+            if (result) return res.json(result);
+            return res.sendStatus(200);
+          });
+        } else {
+          var msg = "Solo el Administrador o Aprobador puede eliminar.";
+          return res.status(300).json({status: 300, message: msg});
+        }
       }
     });
   });
@@ -68,17 +73,21 @@ router.post('/proyecto', jwtUtil.ensureToken, function(req, res, next) {
     if (err) {
       res.sendStatus(403);
     } else {
-      
-        var params = req.body;
-        params.fecha_creacion = moment().utc().format();
-        params.fecha_modificacion = moment().utc().format();
-
+      var loggedUser = data.usuario;
+      var params = req.body;
+      params.fecha_creacion = moment().utc().format();
+      params.fecha_modificacion = moment().utc().format();
+      if(loggedUser[0].tipo_perfil == 1 || loggedUser[0].tipo_perfil == 2){
         proyectoController.crearResgistro(params, (err, result) => {
             if (err) return next(err);
 
             if (result) return res.json(result);
             return res.sendStatus(200);
-        });      
+        });  
+      } else {
+        var msg = "Solo el Administrador o Aprobador puede crear.";
+        return res.status(300).json({status: 300, message: msg});
+      } 
     }
   });
 });
@@ -89,21 +98,21 @@ router.put('/proyecto/:proyectoid', jwtUtil.ensureToken, function(req, res, next
     if (err) {
       res.sendStatus(403);
     } else {
-    //   var loggedUser = data.usuario;
+      var loggedUser = data.usuario;
       var proyectoid = req.params.proyectoid;
       var params = req.body;
       params.fecha_modificacion = moment().utc().format();
-    //   if(loggedUser[0].id == userid || loggedUser[0].tipo_perfil == 1){
+      if(loggedUser[0].tipo_perfil == 1 || loggedUser[0].tipo_perfil == 2){
         proyectoController.modificarRegistro(proyectoid, params, (err, result) => {
           if (err) return next(err);
 
           if (result) return res.json(result);
           return res.sendStatus(200);
         });
-    //   } else {
-    //     var msg = "Solo el Administrador o dueño de la cuenta puede modificar.";
-    //     return res.status(300).json({status: 300, message: msg});
-    //   }
+      } else {
+        var msg = "Solo el Administrador o Aprobador puede modificar.";
+        return res.status(300).json({status: 300, message: msg});
+      }
     }
   });
 });

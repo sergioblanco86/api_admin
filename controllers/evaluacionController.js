@@ -17,7 +17,7 @@ const obtenerEvaluacionById = (evaluacionid, done) => {
 };
 
 const eliminarEvaluacion = (evaluacionid, done) => {
-    con.query('DELETE * FROM evaluacion WHERE idevaluacion = ' + evaluacionid, (errors, result) => {
+    con.query('DELETE * FROM evaluacion WHERE idevaluacion = ' + parseInt(evaluacionid), (errors, result) => {
         return done(errors, result);
     });
 };
