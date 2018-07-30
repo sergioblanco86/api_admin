@@ -16,7 +16,7 @@ const obtenerEspacios = (done) => {
           });
         } 
 
-        callback(null, result);
+        callback(errors, result);
       }
     ], (err, result) => {
       return done(err, result);

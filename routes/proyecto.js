@@ -5,38 +5,38 @@ let moment = require('moment');
 let _ = require('lodash');
 
 let jwtUtil = require('../utils/jwtUtil');
-let espacioController = require('../controllers/espacioController');
+let proyectoController = require('../controllers/proyectoController');
 
-/* GET espacio listing. */
+/* GET proyecto listing. */
 router.get('/', function(req, res, next) {
   res.send('live');
 });
 
-/* GET espacio listing. */
-router.get('/espacio', jwtUtil.ensureToken, function(req, res, next) {
+/* GET proyecto listing. */
+router.get('/proyecto', jwtUtil.ensureToken, function(req, res, next) {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
       res.sendStatus(403);
     } else {
       
-    espacioController.obtenerEspacios((err, result) => {
-      if (err) return next(err);
-      if (result) return res.json(result);
-      return res.sendStatus(200);
-    });
+        proyectoController.obtenerProyectos((err, result) => {
+        if (err) return next(err);
+        if (result) return res.json(result);
+        return res.sendStatus(200);
+        });
     }
   });
 });
 
-/* GET espacio by id. */
-router.get('/espacio/:espacioid', jwtUtil.ensureToken, function(req, res, next) {
+/* GET proyecto by id. */
+router.get('/proyecto/:proyectoid', jwtUtil.ensureToken, function(req, res, next) {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
       res.sendStatus(403);
     } else {
-      var espacioid = req.params.espacioid;
+      var proyectoid = req.params.proyectoid;
 
-      espacioController.obtenerEspacioById(espacioid, (err, result) => {
+      proyectoController.obtenerProyectoById(proyectoid, (err, result) => {
         if (err) return next(err);
         if (result) return res.json(result);
         return res.sendStatus(200);
@@ -45,15 +45,15 @@ router.get('/espacio/:espacioid', jwtUtil.ensureToken, function(req, res, next) 
   });
 });
 
-/* DELETE espacio by id. */
-router.delete('/espacio/:espacioid', jwtUtil.ensureToken, function(req, res, next) {
+/* DELETE proyecto by id. */
+router.delete('/proyecto/:proyectoid', jwtUtil.ensureToken, function(req, res, next) {
     jwt.verify(req.token, 'login_key', function(err, data) {
       if (err) {
         res.sendStatus(403);
       } else {
-        var espacioid = req.params.espacioid;
+        var proyectoid = req.params.proyectoid;
   
-        espacioController.eliminarEspacio(espacioid, (err, result) => {
+        proyectoController.eliminarProyecto(proyectoid, (err, result) => {
           if (err) return next(err);
           if (result) return res.json(result);
           return res.sendStatus(200);
@@ -62,40 +62,39 @@ router.delete('/espacio/:espacioid', jwtUtil.ensureToken, function(req, res, nex
     });
   });
 
-/* CREATE espacio. */
-router.post('/espacio', jwtUtil.ensureToken, function(req, res, next) {
+/* CREATE proyecto. */
+router.post('/proyecto', jwtUtil.ensureToken, function(req, res, next) {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
       res.sendStatus(403);
     } else {
       
-      var params = req.body;
-      params.estado = _.get(params, 'estado', 1);
-      params.fecha_creacion = moment().utc().format();
-      params.fecha_modificacion = moment().utc().format();
+        var params = req.body;
+        params.fecha_creacion = moment().utc().format();
+        params.fecha_modificacion = moment().utc().format();
 
-      espacioController.crearResgistro(params, (err, result) => {
-        if (err) return next(err);
+        proyectoController.crearResgistro(params, (err, result) => {
+            if (err) return next(err);
 
-        if (result) return res.json(result);
-        return res.sendStatus(200);
-      });      
+            if (result) return res.json(result);
+            return res.sendStatus(200);
+        });      
     }
   });
 });
 
-/* UPDATE espacio by id. */
-router.put('/espacio/:espacioid', jwtUtil.ensureToken, function(req, res, next) {
+/* UPDATE proyecto by id. */
+router.put('/proyecto/:proyectoid', jwtUtil.ensureToken, function(req, res, next) {
   jwt.verify(req.token, 'login_key', function(err, data) {
     if (err) {
       res.sendStatus(403);
     } else {
     //   var loggedUser = data.usuario;
-      var espacioid = req.params.espacioid;
+      var proyectoid = req.params.proyectoid;
       var params = req.body;
       params.fecha_modificacion = moment().utc().format();
     //   if(loggedUser[0].id == userid || loggedUser[0].tipo_perfil == 1){
-        espacioController.modificarRegistro(espacioid, params, (err, result) => {
+        proyectoController.modificarRegistro(proyectoid, params, (err, result) => {
           if (err) return next(err);
 
           if (result) return res.json(result);
