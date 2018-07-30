@@ -8,7 +8,7 @@ let jwtUtil = require('../utils/jwtUtil');
 let evaluacionController = require('../controllers/evaluacionController');
 
 /* GET evaluacion listing. */
-router.get('/', function(req, res, next) {
+router.get('/evaluacion/health', function(req, res, next) {
   res.send('live');
 });
 

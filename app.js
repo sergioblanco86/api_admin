@@ -9,6 +9,11 @@ var cors = require('cors');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var espacio = require('./routes/espacio');
+var evaluacion = require('./routes/evaluacion');
+var evento = require('./routes/evento');
+var programa = require('./routes/programa');
+var proyecto = require('./routes/proyecto');
+var tipoEvento = require('./routes/tipoEvento');
 
 var app = express();
 
@@ -35,6 +40,11 @@ app.use('/', index);
 // app.use('/users', users);
 app.use('/api/v1', users);
 app.use('/api/v1', espacio);
+app.use('/api/v1', evaluacion);
+app.use('/api/v1', evento);
+app.use('/api/v1', programa);
+app.use('/api/v1', proyecto);
+app.use('/api/v1', tipoEvento);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

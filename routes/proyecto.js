@@ -8,7 +8,7 @@ let jwtUtil = require('../utils/jwtUtil');
 let proyectoController = require('../controllers/proyectoController');
 
 /* GET proyecto listing. */
-router.get('/', function(req, res, next) {
+router.get('/proyecto/health', function(req, res, next) {
   res.send('live');
 });
 

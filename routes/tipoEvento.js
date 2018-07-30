@@ -8,7 +8,7 @@ let jwtUtil = require('../utils/jwtUtil');
 let tipoEventoController = require('../controllers/tipoEventoController');
 
 /* GET tipoEvento listing. */
-router.get('/', function(req, res, next) {
+router.get('/tipoEvento/health', function(req, res, next) {
   res.send('live');
 });
 

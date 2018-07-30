@@ -8,7 +8,7 @@ let jwtUtil = require('../utils/jwtUtil');
 let espacioController = require('../controllers/espacioController');
 
 /* GET espacio listing. */
-router.get('/', function(req, res, next) {
+router.get('/espacio/health', function(req, res, next) {
   res.send('live');
 });
 

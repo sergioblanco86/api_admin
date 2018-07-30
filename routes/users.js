@@ -11,7 +11,7 @@ let jwtUtil = require('../utils/jwtUtil');
 let userController = require('../controllers/userController');
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/user/health', function(req, res, next) {
   res.send('respond with a resource');
 });
 

@@ -8,7 +8,7 @@ let jwtUtil = require('../utils/jwtUtil');
 let programaController = require('../controllers/programaController');
 
 /* GET programa listing. */
-router.get('/', function(req, res, next) {
+router.get('/programa/health', function(req, res, next) {
   res.send('live');
 });
 
