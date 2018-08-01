@@ -24,6 +24,46 @@ const obtenerEventos = (done) => {
     });
 };
 
+const obtenerEventosByUserId = (userid, done) => {
+    con.query('SELECT * FROM evento WHERE created_by = ' + userid, (errors, result) => {
+        async.waterfall([
+            function (callback){
+                if(!_.isEmpty(result)){
+                    _.forEach(result, function(item) {
+                        item.aprobadores = (!_.isEmpty(item.aprobadores)) ? JSON.parse(item.aprobadores) : item.aprobadores;
+                        item.color = (!_.isEmpty(item.color)) ? JSON.parse(item.color) : item.color;
+                        item.actions = (!_.isEmpty(item.actions)) ? JSON.parse(item.actions) : item.actions;
+                        item.resizable = (!_.isEmpty(item.resizable)) ? JSON.parse(item.resizable) : item.resizable;
+                    });
+                } 
+                callback(errors, result);
+            }
+        ], (err, result) => {
+            return done(err, result);
+        });
+    });
+};
+
+const obtenerEventosByEspacioId = (espacioid, done) => {
+    con.query('SELECT * FROM evento WHERE id_espacio = ' + espacioid, (errors, result) => {
+        async.waterfall([
+            function (callback){
+                if(!_.isEmpty(result)){
+                    _.forEach(result, function(item) {
+                        item.aprobadores = (!_.isEmpty(item.aprobadores)) ? JSON.parse(item.aprobadores) : item.aprobadores;
+                        item.color = (!_.isEmpty(item.color)) ? JSON.parse(item.color) : item.color;
+                        item.actions = (!_.isEmpty(item.actions)) ? JSON.parse(item.actions) : item.actions;
+                        item.resizable = (!_.isEmpty(item.resizable)) ? JSON.parse(item.resizable) : item.resizable;
+                    });
+                } 
+                callback(errors, result);
+            }
+        ], (err, result) => {
+            return done(err, result);
+        });
+    });
+};
+
 const obtenerEventoById = (eventoid, done) => {
     con.query('SELECT * FROM evento WHERE idevento = ' + eventoid, (errors, result) => {
         async.waterfall([
@@ -90,6 +130,8 @@ const modificarRegistro = (eventoid, eventoParams, done) => {
 
 module.exports = {
   obtenerEventos,
+  obtenerEventosByUserId,
+  obtenerEventosByEspacioId,
   obtenerEventoById,
   eliminarEvento,
   crearResgistro,

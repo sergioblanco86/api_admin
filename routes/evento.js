@@ -45,6 +45,38 @@ router.get('/evento/:eventoid', jwtUtil.ensureToken, function(req, res, next) {
   });
 });
 
+/* GET evento by userid. */
+router.get('/evento/usuario/:userid', jwtUtil.ensureToken, function(req, res, next) {
+  jwt.verify(req.token, 'login_key', function(err, data) {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      var userid = req.params.userid;
+      eventoController.obtenerEventosByUserId(userid, (err, result) => {
+      if (err) return next(err);
+      if (result) return res.json(result);
+      return res.sendStatus(200);
+      });
+    }
+  });
+});
+
+/* GET evento by userid. */
+router.get('/evento/espacio/:espacioid', jwtUtil.ensureToken, function(req, res, next) {
+  jwt.verify(req.token, 'login_key', function(err, data) {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      var espacioid = req.params.espacioid;
+      eventoController.obtenerEventosByEspacioId(espacioid, (err, result) => {
+      if (err) return next(err);
+      if (result) return res.json(result);
+      return res.sendStatus(200);
+      });
+    }
+  });
+});
+
 /* DELETE evento by id. */
 router.delete('/evento/:eventoid', jwtUtil.ensureToken, function(req, res, next) {
     jwt.verify(req.token, 'login_key', function(err, data) {
