@@ -19,11 +19,11 @@ router.get('/proyecto', jwtUtil.ensureToken, function(req, res, next) {
       res.sendStatus(403);
     } else {
       
-        proyectoController.obtenerProyectos((err, result) => {
+      proyectoController.obtenerProyectos((err, result) => {
         if (err) return next(err);
         if (result) return res.json(result);
         return res.sendStatus(200);
-        });
+      });
     }
   });
 });

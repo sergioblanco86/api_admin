@@ -19,11 +19,11 @@ router.get('/tipoEvento', jwtUtil.ensureToken, function(req, res, next) {
       res.sendStatus(403);
     } else {
       
-        tipoEventoController.obtenerTipoEventos((err, result) => {
+      tipoEventoController.obtenerTipoEventos((err, result) => {
         if (err) return next(err);
         if (result) return res.json(result);
         return res.sendStatus(200);
-        });
+      });
     }
   });
 });

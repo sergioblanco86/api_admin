@@ -19,11 +19,11 @@ router.get('/programa', jwtUtil.ensureToken, function(req, res, next) {
       res.sendStatus(403);
     } else {
       
-        programaController.obtenerProgramas((err, result) => {
+      programaController.obtenerProgramas((err, result) => {
         if (err) return next(err);
         if (result) return res.json(result);
         return res.sendStatus(200);
-        });
+      });
     }
   });
 });

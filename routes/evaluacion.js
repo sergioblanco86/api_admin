@@ -19,11 +19,11 @@ router.get('/evaluacion', jwtUtil.ensureToken, function(req, res, next) {
       res.sendStatus(403);
     } else {
       
-        evaluacionController.obtenerEvaluaciones((err, result) => {
+      evaluacionController.obtenerEvaluaciones((err, result) => {
         if (err) return next(err);
         if (result) return res.json(result);
         return res.sendStatus(200);
-        });
+      });
     }
   });
 });

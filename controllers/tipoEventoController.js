@@ -11,13 +11,13 @@ const obtenerTipoEventos = (done) => {
 };
 
 const obtenerTipoEventoById = (tipoEventoid, done) => {
-  con.query('SELECT * FROM tipo_evento WHERE idtipoEvento = ' + tipoEventoid, (errors, result) => {
+  con.query('SELECT * FROM tipo_evento WHERE idTipoEvento = ' + tipoEventoid, (errors, result) => {
         return done(errors, result);
   });
 };
 
 const eliminarTipoEvento = (tipoEventoid, done) => {
-    con.query('DELETE * FROM tipo_evento WHERE idtipoEvento = ' + tipoEventoid, (errors, result) => {
+    con.query('DELETE * FROM tipo_evento WHERE idTipoEvento = ' + tipoEventoid, (errors, result) => {
         return done(errors, result);
     });
 };
@@ -39,7 +39,7 @@ const crearResgistro = (tipoEventoParams, done) => {
 
 const modificarRegistro = (tipoEventoid, tipoEventoParams, done) => {
     var params = tipoEventoParams;
-    var sql = "UPDATE tipo_evento SET ? WHERE idtipoEvento = " + tipoEventoid;
+    var sql = "UPDATE tipo_evento SET ? WHERE idTipoEvento = " + tipoEventoid;
     var inserts = params;
     sql = mysql.format(sql, inserts);
 
