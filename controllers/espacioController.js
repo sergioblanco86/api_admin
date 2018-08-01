@@ -46,7 +46,7 @@ const obtenerEspacioById = (espacioid, done) => {
 };
 
 const eliminarEspacio = (espacioid, done) => {
-    con.query('DELETE * FROM espacio WHERE idespacio = ' + espacioid, (errors, result) => {
+    con.query('DELETE FROM espacio WHERE idespacio = ' + espacioid, (errors, result) => {
       return done(errors, result);
     });
 };

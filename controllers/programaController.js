@@ -17,7 +17,7 @@ const obtenerProgramaById = (programaid, done) => {
 };
 
 const eliminarPrograma = (programaid, done) => {
-    con.query('DELETE * FROM programa WHERE idprograma = ' + programaid, (errors, result) => {
+    con.query('DELETE FROM programa WHERE idprograma = ' + programaid, (errors, result) => {
         return done(errors, result);
     });
 };

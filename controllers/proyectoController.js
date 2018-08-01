@@ -17,7 +17,7 @@ const obtenerProyectoById = (proyectoid, done) => {
 };
 
 const eliminarProyecto = (proyectoid, done) => {
-    con.query('DELETE * FROM proyecto WHERE idproyecto = ' + proyectoid, (errors, result) => {
+    con.query('DELETE FROM proyecto WHERE idproyecto = ' + proyectoid, (errors, result) => {
         return done(errors, result);
     });
 };

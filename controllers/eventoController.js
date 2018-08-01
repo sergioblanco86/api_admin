@@ -45,7 +45,7 @@ const obtenerEventoById = (eventoid, done) => {
 };
 
 const eliminarEvento = (eventoid, done) => {
-    con.query('DELETE * FROM evento WHERE idevento = ' + eventoid, (errors, result) => {
+    con.query('DELETE FROM evento WHERE idevento = ' + eventoid, (errors, result) => {
         return done(errors, result);
     });
 };

@@ -17,10 +17,10 @@ const obtenerTipoEventoById = (tipoEventoid, done) => {
 };
 
 const eliminarTipoEvento = (tipoEventoid, done) => {
-    con.query('DELETE * FROM tipo_evento WHERE idTipoEvento = ' + tipoEventoid, (errors, result) => {
+    con.query('DELETE FROM tipo_evento WHERE idTipoEvento = ' + tipoEventoid, (errors, result) => {
         return done(errors, result);
     });
-};
+};"DELETE * FROM tipo_evento WHERE idTipoEvento = 1"
 
 const crearResgistro = (tipoEventoParams, done) => {
     var params = tipoEventoParams;
