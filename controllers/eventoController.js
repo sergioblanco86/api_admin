@@ -4,19 +4,29 @@ let _ = require('lodash');
 let moment = require('moment');
 var mysql = require('mysql');
 
+function parseElements(data, done){
+    let result = data;
+    _.forEach(result, function(item) {
+        item.aprobadores = (!_.isEmpty(item.aprobadores)) ? JSON.parse(item.aprobadores) : item.aprobadores;
+        item.color = (!_.isEmpty(item.color)) ? JSON.parse(item.color) : item.color;
+        item.actions = (!_.isEmpty(item.actions)) ? JSON.parse(item.actions) : item.actions;
+        item.resizable = (!_.isEmpty(item.resizable)) ? JSON.parse(item.resizable) : item.resizable;
+    });
+
+    return done(result);
+}
+
 const obtenerEventos = (done) => {
     con.query('SELECT * FROM evento', (errors, result) => {
         async.waterfall([
             function (callback){
                 if(!_.isEmpty(result)){
-                    _.forEach(result, function(item) {
-                        item.aprobadores = (!_.isEmpty(item.aprobadores)) ? JSON.parse(item.aprobadores) : item.aprobadores;
-                        item.color = (!_.isEmpty(item.color)) ? JSON.parse(item.color) : item.color;
-                        item.actions = (!_.isEmpty(item.actions)) ? JSON.parse(item.actions) : item.actions;
-                        item.resizable = (!_.isEmpty(item.resizable)) ? JSON.parse(item.resizable) : item.resizable;
+                    parseElements(result, (data) => {
+                        callback(errors, data);
                     });
+                } else {
+                    callback(errors, result);
                 } 
-                callback(errors, result);
             }
         ], (err, result) => {
             return done(err, result);
@@ -29,14 +39,12 @@ const obtenerEventosByUserId = (userid, done) => {
         async.waterfall([
             function (callback){
                 if(!_.isEmpty(result)){
-                    _.forEach(result, function(item) {
-                        item.aprobadores = (!_.isEmpty(item.aprobadores)) ? JSON.parse(item.aprobadores) : item.aprobadores;
-                        item.color = (!_.isEmpty(item.color)) ? JSON.parse(item.color) : item.color;
-                        item.actions = (!_.isEmpty(item.actions)) ? JSON.parse(item.actions) : item.actions;
-                        item.resizable = (!_.isEmpty(item.resizable)) ? JSON.parse(item.resizable) : item.resizable;
+                    parseElements(result, (data) => {
+                        callback(errors, data);
                     });
+                } else {
+                    callback(errors, result);
                 } 
-                callback(errors, result);
             }
         ], (err, result) => {
             return done(err, result);
@@ -49,14 +57,12 @@ const obtenerEventosByEspacioId = (espacioid, done) => {
         async.waterfall([
             function (callback){
                 if(!_.isEmpty(result)){
-                    _.forEach(result, function(item) {
-                        item.aprobadores = (!_.isEmpty(item.aprobadores)) ? JSON.parse(item.aprobadores) : item.aprobadores;
-                        item.color = (!_.isEmpty(item.color)) ? JSON.parse(item.color) : item.color;
-                        item.actions = (!_.isEmpty(item.actions)) ? JSON.parse(item.actions) : item.actions;
-                        item.resizable = (!_.isEmpty(item.resizable)) ? JSON.parse(item.resizable) : item.resizable;
+                    parseElements(result, (data) => {
+                        callback(errors, data);
                     });
+                } else {
+                    callback(errors, result);
                 } 
-                callback(errors, result);
             }
         ], (err, result) => {
             return done(err, result);
@@ -69,14 +75,12 @@ const obtenerEventoById = (eventoid, done) => {
         async.waterfall([
             function (callback){
                 if(!_.isEmpty(result)){
-                    _.forEach(result, function(item) {
-                        item.aprobadores = (!_.isEmpty(item.aprobadores)) ? JSON.parse(item.aprobadores) : item.aprobadores;
-                        item.color = (!_.isEmpty(item.color)) ? JSON.parse(item.color) : item.color;
-                        item.actions = (!_.isEmpty(item.actions)) ? JSON.parse(item.actions) : item.actions;
-                        item.resizable = (!_.isEmpty(item.resizable)) ? JSON.parse(item.resizable) : item.resizable;
+                    parseElements(result, (data) => {
+                        callback(errors, data);
                     });
+                } else {
+                    callback(errors, result);
                 } 
-                callback(errors, result);
             }
         ], (err, result) => {
             return done(err, result);
