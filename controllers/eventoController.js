@@ -4,15 +4,6 @@ let _ = require('lodash');
 let moment = require('moment');
 var mysql = require('mysql');
 
-function parseElements(data, done){
-    let result = data;
-    _.forEach(result, function(item) {
-        item.color = (!_.isEmpty(item.color)) ? JSON.parse(item.color) : item.color;
-    });
-
-    return done(result);
-}
-
 const obtenerEventos = (done) => {
     con.query('SELECT * FROM evento', (errors, result) => {
         
