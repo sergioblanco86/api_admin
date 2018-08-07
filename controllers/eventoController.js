@@ -7,10 +7,7 @@ var mysql = require('mysql');
 function parseElements(data, done){
     let result = data;
     _.forEach(result, function(item) {
-        item.aprobadores = (!_.isEmpty(item.aprobadores)) ? JSON.parse(item.aprobadores) : item.aprobadores;
         item.color = (!_.isEmpty(item.color)) ? JSON.parse(item.color) : item.color;
-        item.actions = (!_.isEmpty(item.actions)) ? JSON.parse(item.actions) : item.actions;
-        item.resizable = (!_.isEmpty(item.resizable)) ? JSON.parse(item.resizable) : item.resizable;
     });
 
     return done(result);
@@ -18,73 +15,33 @@ function parseElements(data, done){
 
 const obtenerEventos = (done) => {
     con.query('SELECT * FROM evento', (errors, result) => {
-        async.waterfall([
-            function (callback){
-                if(!_.isEmpty(result)){
-                    parseElements(result, (data) => {
-                        callback(errors, data);
-                    });
-                } else {
-                    callback(errors, result);
-                } 
-            }
-        ], (err, result) => {
-            return done(err, result);
-        });
+        
+        return done(errors, result);
+          
     });
 };
 
 const obtenerEventosByUserId = (userid, done) => {
     con.query('SELECT * FROM evento WHERE created_by = ' + userid, (errors, result) => {
-        async.waterfall([
-            function (callback){
-                if(!_.isEmpty(result)){
-                    parseElements(result, (data) => {
-                        callback(errors, data);
-                    });
-                } else {
-                    callback(errors, result);
-                } 
-            }
-        ], (err, result) => {
-            return done(err, result);
-        });
+       
+        return done(errors, result);
+        
     });
 };
 
 const obtenerEventosByEspacioId = (espacioid, done) => {
     con.query('SELECT * FROM evento WHERE id_espacio = ' + espacioid, (errors, result) => {
-        async.waterfall([
-            function (callback){
-                if(!_.isEmpty(result)){
-                    parseElements(result, (data) => {
-                        callback(errors, data);
-                    });
-                } else {
-                    callback(errors, result);
-                } 
-            }
-        ], (err, result) => {
-            return done(err, result);
-        });
+      
+        return done(errors, result);
+        
     });
 };
 
 const obtenerEventoById = (eventoid, done) => {
     con.query('SELECT * FROM evento WHERE idevento = ' + eventoid, (errors, result) => {
-        async.waterfall([
-            function (callback){
-                if(!_.isEmpty(result)){
-                    parseElements(result, (data) => {
-                        callback(errors, data);
-                    });
-                } else {
-                    callback(errors, result);
-                } 
-            }
-        ], (err, result) => {
-            return done(err, result);
-        });
+       
+        return done(errors, result);
+        
     });
 };
 
@@ -96,10 +53,6 @@ const eliminarEvento = (eventoid, done) => {
 
 const crearResgistro = (eventoParams, done) => {
     var params = eventoParams;
-    params.aprobadores = JSON.stringify(params.aprobadores); 
-    params.color = JSON.stringify(params.color); 
-    params.actions = JSON.stringify(params.actions);
-    params.resizable = JSON.stringify(params.resizable);
     var sql = "INSERT INTO evento SET ?";
     var inserts = params;
     sql = mysql.format(sql, inserts);
@@ -115,10 +68,6 @@ const crearResgistro = (eventoParams, done) => {
 
 const modificarRegistro = (eventoid, eventoParams, done) => {
     var params = eventoParams;
-    params.aprobadores = JSON.stringify(params.aprobadores); 
-    params.color = JSON.stringify(params.color); 
-    params.actions = JSON.stringify(params.actions);
-    params.resizable = JSON.stringify(params.resizable);
     var sql = "UPDATE evento SET ? WHERE idevento = " + eventoid;
     var inserts = params;
     sql = mysql.format(sql, inserts);
