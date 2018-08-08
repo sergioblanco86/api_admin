@@ -158,7 +158,7 @@ router.put('/evento/:eventoid/gestionar', jwtUtil.ensureToken, function(req, res
           return res.sendStatus(200);
         });
       } else {
-        var msg = "Solo el Administrador o Aprobador puede crear.";
+        var msg = "Solo el Administrador o Aprobador puede gestionar eventos.";
         return res.status(300).json({status: 300, message: msg});
       }
     }
