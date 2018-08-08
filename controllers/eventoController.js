@@ -72,6 +72,24 @@ const modificarRegistro = (eventoid, eventoParams, done) => {
     });
 };
 
+const administrarEvento = (eventoid, eventoParams, done) => {
+    var params = {};
+    params.estado = _.get(eventoParams, 'estado');
+    params.revisado_by = _.get(eventoParams, 'revisado_by');
+
+    var sql = "UPDATE evento SET ? WHERE idevento = " + eventoid;
+    var inserts = params;
+    sql = mysql.format(sql, inserts);
+
+    con.query(sql, (error, evento) => {
+        
+        if (error) return done(error);
+
+        return done(error, evento);
+        
+    });
+};
+
 module.exports = {
   obtenerEventos,
   obtenerEventosByUserId,
@@ -79,5 +97,6 @@ module.exports = {
   obtenerEventoById,
   eliminarEvento,
   crearResgistro,
-  modificarRegistro
+  modificarRegistro,
+  administrarEvento
 };
