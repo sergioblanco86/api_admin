@@ -1,8 +1,29 @@
 var async = require('async');
-const con = require('../config/database');
 let _ = require('lodash');
 let moment = require('moment');
 var mysql = require('mysql');
+
+const con = require('../config/database');
+const SendEmailUtil = require('../utils/sendEmailUtil');
+const EspacioController = require('./espacioController');
+const UserController = require('./userController');
+
+let tipoNotificaciones = { 
+    s: {
+        subject: 'Eventos - Nueva solicitud.',
+        template: 'solicitud.html'
+    }, 
+    r: {
+        subject: 'Eventos - Respuesta solicitud.',
+        template: 'respuesta.html'
+    }
+};
+
+let estadoEvento = {
+    '1': 'Aprobado',
+    '2': 'Por aprobar',
+    '3': 'Rechazado'
+}
 
 const obtenerEventos = (done) => {
     con.query('SELECT * FROM evento', (errors, result) => {
@@ -52,9 +73,112 @@ const crearResgistro = (eventoParams, done) => {
         
         if (error) return done(error);
 
-        return done(error, evento);
+        enviarNotificacion('s', params, params.created_by, (err, info) => {
+            if (err) return done(err);
+
+            return done(error, evento);
+        });
         
     });
+};
+
+const enviarNotificacionAprobadores = (tipoNotificacion, evento, userid, done) => {
+    let mailOptions = {};
+    let to = '';
+    let data ={};
+    let idEspacio = evento.id_espacio;
+
+    async.waterfall([ 
+        function(callback){
+            EspacioController.obtenerEspacioById(idEspacio, (err, espacio) => {
+
+                callback(err, espacio[0]);
+            });
+        },
+        function(espacio, callback){
+            UserController.obtenerAprobadores(espacio.aprobadores, (err, aprobadores) => {
+                data.espacio = espacio;
+                data.aprobadores = aprobadores;
+                callback(err, data);
+            });
+        },
+        function(data, callback){
+            UserController.obtenerUsuarioById(userid, (err, usuario) => {
+                data.usuario = usuario[0];
+                callback(err, data);
+            });
+        }
+    ], (err, data) => {
+        if (err) return done(err);
+
+        let espacio = data.espacio;
+        let usuario = data.usuario;
+        _.forEach(data.aprobadores, (aprobador, key) => {
+            to += aprobador.email;
+            to += (key <  data.aprobadores.length - 1) ? ', ' : '';
+        });
+
+        mailOptions.parameters = {
+            usuarioSolicitud: usuario.nombre + ' ' + usuario.apellido,
+            lugarEvento: espacio.nombre,
+            nombreEvento: evento.title,
+            diaEvento: moment(evento.start).format('DD'),
+            mesEvento: moment(evento.start).format('MMMM'),
+            anoEvento: moment(evento.start).format('YYYY'),
+            horaInicial: moment(evento.start).format('hh:mm A'),
+            horaFinal: moment(evento.end).format('hh:mm A')
+        };
+        mailOptions.to = to;
+        mailOptions.subject = tipoNotificaciones[tipoNotificacion].subject;
+        mailOptions.template = tipoNotificaciones[tipoNotificacion].template;
+        SendEmailUtil.sendEmail(mailOptions, (err, info) => {
+            if (err) return done(err);
+    
+            return done(error, info);
+        });
+    });
+};
+
+const enviarNotificacionRespuesta = (tipoNotificacion, evento, userid, done) => {
+
+    let mailOptions = {};
+
+    async.waterfall([ 
+        function(callback){
+            UserController.obtenerUsuarioById(userid, (err, usuario) => {
+                callback(err, usuario);
+            });
+        }
+    ], (err, data) => {
+        if (err) return done(err);
+
+        mailOptions.parameters = {
+            nombreEvento: evento.title,
+            fechaEvento: moment(evento.start).format('DD-MM-YYYY'),
+            horaInicial: moment(evento.start).format('hh:mm A'),
+            horaFinal: moment(evento.end).format('hh:mm A'),
+            respuestaEvento: estadoEvento[evento.estado]
+        };
+
+        mailOptions.to = data.email;
+        mailOptions.subject = tipoNotificaciones[tipoNotificacion].subject;
+        mailOptions.template = tipoNotificaciones[tipoNotificacion].template;
+        SendEmailUtil.sendEmail(mailOptions, (err, info) => {
+            if (err) return done(err);
+    
+            return done(error, info);
+        });
+    });
+
+    
+};
+
+const enviarNotificacion = (tipoNotificacion, evento, userid, done) => {
+    if(tipoNotificacion == 's'){
+        enviarNotificacionAprobadores(tipoNotificacion, evento, userid, done);
+    } else {
+        enviarNotificacionRespuesta(tipoNotificacion, evento, userid, done);
+    }
 };
 
 const modificarRegistro = (eventoid, eventoParams, done) => {
@@ -85,8 +209,12 @@ const administrarEvento = (eventoid, eventoParams, done) => {
         
         if (error) return done(error);
 
-        return done(error, evento);
-        
+        // return done(error, evento);
+        enviarNotificacion('r', params, params.created_by, (err, info) => {
+            if (err) return done(err);
+
+            return done(error, evento);
+        });
     });
 };
 

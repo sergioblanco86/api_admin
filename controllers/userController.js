@@ -24,6 +24,23 @@ const obtenerUsuarioById = (userid, done) => {
   });
 };
 
+const obtenerAprobadores = (arrayUserid, done) => {
+  let sql = 'SELECT * FROM usuario ';
+  let where = 'WHERE ';
+
+  _.forEach(arrayUserid, (userid, key) => {
+    where += 'id = ' + userid;
+    where += (key < arrayUserid.length - 1) ? ' OR ' : '';
+  });
+  sql += where;
+  sql = mysql.format(sql);
+  con.query(sql, (error, aprobadores) => {
+    if(error) return done(error);
+
+    return done(error, aprobadores);
+  });
+};
+
 const crearUsuario = (usuarioParams, done) => {
     var params = usuarioParams;
 
@@ -128,5 +145,6 @@ module.exports = {
   obtenerUsuarioById,
   checkExitencia,
   crearUsuario,
-  modificarUsuario
+  modificarUsuario,
+  obtenerAprobadores
 };
