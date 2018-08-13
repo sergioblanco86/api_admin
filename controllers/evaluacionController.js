@@ -1,8 +1,10 @@
 var async = require('async');
-const con = require('../config/database');
 let _ = require('lodash');
 let moment = require('moment');
 var mysql = require('mysql');
+
+const con = require('../config/database');
+const eventoController = require('./eventoController');
 
 const obtenerEvaluaciones = (done) => {
     con.query('SELECT * FROM evaluacion', (errors, result) => {
@@ -48,7 +50,11 @@ const crearResgistro = (evaluacionParams, done) => {
         
         if (error) return done(error);
 
-        return done(error, evaluacion);
+        eventoController.modificarRegistro(params.idevento, { calificado: true }, (err, result) => {
+            if (err) return done(err);
+
+            return done(error, evaluacion);
+        });
         
     });
 };
