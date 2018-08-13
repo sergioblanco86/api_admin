@@ -45,6 +45,23 @@ router.get('/evaluacion/:evaluacionid', jwtUtil.ensureToken, function(req, res, 
   });
 });
 
+/* GET evaluacion by id. */
+router.get('/evaluacion/evento/:eventoid', jwtUtil.ensureToken, function(req, res, next) {
+  jwt.verify(req.token, 'login_key', function(err, data) {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      var eventoid = req.params.eventoid;
+
+      evaluacionController.obtenerEvaluacionByEventoId(eventoid, (err, result) => {
+        if (err) return next(err);
+        if (result) return res.json(result);
+        return res.sendStatus(200);
+      });
+    }
+  });
+});
+
 /* DELETE evaluacion by id. */
 router.delete('/evaluacion/:evaluacionid', jwtUtil.ensureToken, function(req, res, next) {
     jwt.verify(req.token, 'login_key', function(err, data) {

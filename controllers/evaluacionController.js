@@ -11,13 +11,29 @@ const obtenerEvaluaciones = (done) => {
 };
 
 const obtenerEvaluacionById = (evaluacionid, done) => {
-    con.query('SELECT * FROM evaluacion WHERE idevaluacion = ' + evaluacionid, (errors, result) => {
+    let sql = 'SELECT * FROM evaluacion WHERE idevaluacion = ' + evaluacionid;
+    
+    sql = mysql.format(sql);
+    con.query(sql, (errors, result) => {
+        return done(errors, result);
+    });
+};
+
+const obtenerEvaluacionByEventoId = (eventoid, done) => {
+    let sql = 'SELECT * FROM evaluacion WHERE idevento = ' + eventoid;
+
+    sql = mysql.format(sql);
+
+    con.query(sql, (errors, result) => {
         return done(errors, result);
     });
 };
 
 const eliminarEvaluacion = (evaluacionid, done) => {
-    con.query('DELETE FROM evaluacion WHERE idevaluacion = ' + parseInt(evaluacionid), (errors, result) => {
+    let sql = 'DELETE FROM evaluacion WHERE idevaluacion = ' + parseInt(evaluacionid);
+
+    sql = mysql.format(sql);
+    con.query(sql, (errors, result) => {
         return done(errors, result);
     });
 };
@@ -55,6 +71,7 @@ const modificarRegistro = (evaluacionid, evaluacionParams, done) => {
 module.exports = {
   obtenerEvaluaciones,
   obtenerEvaluacionById,
+  obtenerEvaluacionByEventoId,
   eliminarEvaluacion,
   crearResgistro,
   modificarRegistro
