@@ -99,6 +99,7 @@ const modificarUsuario = (userid, usuarioParams, done) => {
           params.contrasena = contra;
           if(!_.has(params, 'editC')){
             delete params.contrasena;
+            delete params.editC;
           }
           var sql = "UPDATE usuario SET ? WHERE id = " + userid;
           var inserts = params;
