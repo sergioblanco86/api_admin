@@ -1,9 +1,9 @@
 var mysql = require('mysql');
 
 var connection = mysql.createPool({
-    host : 'eventos.ccgeehskphbz.us-east-1.rds.amazonaws.com',
+    host : 'http://scpt.barranquilla.gov.co:4000/',
     user : 'root',
-    password : '3d11f4ab',
+    password : '',
     database : 'eventos'
 });
 
