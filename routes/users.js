@@ -122,7 +122,7 @@ router.post('/user/login', (req, res, next) => {
     function(callback){
       con.query("SELECT * FROM usuario WHERE email = '" + email + "'", (errors, usuario) => {
         if(errors)
-                callback(err, null);
+                callback(errors, null);
         if (!_.isEmpty(usuario)) {      
           passUtil.comparePassword(contra, usuario[0].contrasena, (err, isPasswordMatch) => {
             if(err)
