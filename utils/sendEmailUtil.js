@@ -4,7 +4,7 @@ var fs = require('fs');
 
 exports.sendEmail = function(mailOptions, done) {
 
-    let account = {email: 'jhontrl0.1@gmail.com', pass: '9pz7qmms!', service: 'gmail'};
+    let account = {email: 'infoservicio.interno@gmail.com', pass: '9pz7qmms!', service: 'gmail'};
 
     var transporter = nodemailer.createTransport({
         service: account.service,
