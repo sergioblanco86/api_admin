@@ -160,7 +160,7 @@ const enviarNotificacionRespuesta = (tipoNotificacion, evento, userid, done) => 
             respuestaEvento: estadoEvento[evento.estado]
         };
 
-        mailOptions.to = data.email;
+        mailOptions.to = data[0].email;
         mailOptions.subject = tipoNotificaciones[tipoNotificacion].subject;
         mailOptions.template = tipoNotificaciones[tipoNotificacion].template;
         SendEmailUtil.sendEmail(mailOptions, (err, info) => {
@@ -210,7 +210,7 @@ const administrarEvento = (eventoid, eventoParams, done) => {
         if (error) return done(error);
 
         // return done(error, evento);
-        enviarNotificacion('r', params, params.created_by, (err, info) => {
+        enviarNotificacion('r', params, params.revisado_by, (err, info) => {
             if (err) return done(err);
 
             return done(error, evento);
