@@ -1,6 +1,7 @@
 var nodemailer = require('nodemailer');
 var handlebars = require('handlebars');
 var fs = require('fs');
+var async = require('async');
 
 exports.sendEmail = function(mailOptions, done) {
 
@@ -14,7 +15,16 @@ exports.sendEmail = function(mailOptions, done) {
         }
     });
 
-    readHTMLFile(__dirname + '/../templates/' + mailOptions.template, function(err, html) {
+    async.waterfall([ 
+        function(callback){
+            readHTMLFile(__dirname + '/../templates/' + mailOptions.template, function(err, html) {
+                
+                callback(err, html)
+            });   
+        }
+    ], (err, html) => {
+        if (err) return done(err);
+
         let template = handlebars.compile(html);
         let htmlToSend = template(mailOptions.parameters);
 
@@ -25,21 +35,22 @@ exports.sendEmail = function(mailOptions, done) {
         delete mailOptions.parameters;
 
         transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-            console.log(error);
-            return done(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-            return done(null, info);  
-        }
+            if (error) {
+                console.log(error);
+                return done(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+                return done(null, info);  
+            }
         });
+        
     });
 };
 
 const readHTMLFile = function(path, callback) {
     fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
         if (err) {
-            throw err;
+            // throw err;
             callback(err);
         }
         else {

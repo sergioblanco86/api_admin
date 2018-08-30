@@ -25,8 +25,18 @@ let estadoEvento = {
     '3': 'Rechazado'
 }
 
-const obtenerEventos = (done) => {
-    con.query('SELECT * FROM evento', (errors, result) => {
+const obtenerEventos = (query, done) => {
+    let sql = "SELECT * FROM evento";
+    let where = " WHERE ";
+    if(query){
+        let interno = (query.externo == true) ? 0 : 1;
+        where += "interno = " + interno + " AND ";
+        where += "(start BETWEEN '" + query.fecha_inicial + "' AND " + "'" + query.fecha_final + "' OR ";
+        where += "end BETWEEN '" + query.fecha_inicial + "' AND " + "'" + query.fecha_final + "')";
+        sql += where;
+    }
+    sql = mysql.format(sql);
+    con.query(sql, (errors, result) => {
         
         return done(errors, result);
           
@@ -76,7 +86,7 @@ const crearResgistro = (eventoParams, done) => {
         enviarNotificacion('s', params, params.created_by, (err, info) => {
             if (err) return done(err);
 
-            return done(error, evento);
+            return done(err, evento);
         });
         
     });
@@ -131,8 +141,8 @@ const enviarNotificacionAprobadores = (tipoNotificacion, evento, userid, done) =
         mailOptions.to = to;
         mailOptions.subject = tipoNotificaciones[tipoNotificacion].subject;
         mailOptions.template = tipoNotificaciones[tipoNotificacion].template;
-        SendEmailUtil.sendEmail(mailOptions, (err, info) => {
-            if (err) return done(err);
+        SendEmailUtil.sendEmail(mailOptions, (error, info) => {
+            if (error) return done(error);
     
             return done(error, info);
         });
@@ -163,8 +173,8 @@ const enviarNotificacionRespuesta = (tipoNotificacion, evento, userid, done) => 
         mailOptions.to = data[0].email;
         mailOptions.subject = tipoNotificaciones[tipoNotificacion].subject;
         mailOptions.template = tipoNotificaciones[tipoNotificacion].template;
-        SendEmailUtil.sendEmail(mailOptions, (err, info) => {
-            if (err) return done(err);
+        SendEmailUtil.sendEmail(mailOptions, (error, info) => {
+            if (error) return done(error);
     
             return done(error, info);
         });

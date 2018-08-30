@@ -18,11 +18,11 @@ router.get('/evento', jwtUtil.ensureToken, function(req, res, next) {
     if (err) {
       res.sendStatus(403);
     } else {
-      
-        eventoController.obtenerEventos((err, result) => {
+      let query = req.query;
+      eventoController.obtenerEventos(query, (err, result) => {
         if (err) return next(err);
         if (result) return res.json(result);
-        return res.sendStatus(200);
+          return res.sendStatus(200);
         });
     }
   });
