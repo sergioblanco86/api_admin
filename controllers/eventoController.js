@@ -28,7 +28,7 @@ let estadoEvento = {
 const obtenerEventos = (query, done) => {
     let sql = "SELECT * FROM evento";
     let where = " WHERE ";
-    if(query){
+    if(_.has(query, 'externo')){
         let interno = (query.externo == true) ? 0 : 1;
         where += "interno = " + interno + " AND ";
         where += "(start BETWEEN '" + query.fecha_inicial + "' AND " + "'" + query.fecha_final + "' OR ";
