@@ -68,7 +68,8 @@ router.get('/evento/espacio/:espacioid', jwtUtil.ensureToken, function(req, res,
       res.sendStatus(403);
     } else {
       var espacioid = req.params.espacioid;
-      eventoController.obtenerEventosByEspacioId(espacioid, (err, result) => {
+      let query = req.query;
+      eventoController.obtenerEventosByEspacioId(espacioid, query, (err, result) => {
       if (err) return next(err);
       if (result) return res.json(result);
       return res.sendStatus(200);

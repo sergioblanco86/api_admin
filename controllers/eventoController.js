@@ -43,19 +43,27 @@ const obtenerEventos = (query, done) => {
     });
 };
 
-const obtenerEventosByUserId = (userid, done) => {
-    con.query('SELECT * FROM evento WHERE created_by = ' + userid, (errors, result) => {
+const obtenerEventosByUserId = (userid,done) => {
+    let sql = 'SELECT * FROM evento WHERE created_by = ' + userid;
+    sql = mysql.format(sql);
+    con.query(sql, (errors, result) => {
        
         return done(errors, result);
         
     });
 };
 
-const obtenerEventosByEspacioId = (espacioid, done) => {
-    con.query('SELECT * FROM evento WHERE id_espacio = ' + espacioid, (errors, result) => {
-      
+const obtenerEventosByEspacioId = (espacioid, query, done) => {
+    let sql = 'SELECT * FROM evento WHERE id_espacio = ' + espacioid;
+    let and = " AND ";
+    if(_.has(query, 'fecha_inicial')){
+        and += "(start BETWEEN '" + query.fecha_inicial + "' AND " + "'" + query.fecha_final + "' OR ";
+        and += "end BETWEEN '" + query.fecha_inicial + "' AND " + "'" + query.fecha_final + "')";
+        sql += and;
+    }
+    sql = mysql.format(sql);
+    con.query(sql, (errors, result) => {
         return done(errors, result);
-        
     });
 };
 
