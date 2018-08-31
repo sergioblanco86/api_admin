@@ -220,7 +220,7 @@ const administrarEvento = (eventoid, eventoParams, done) => {
         if (error) return done(error);
 
         // return done(error, evento);
-        enviarNotificacion('r', params, params.revisado_by, (err, info) => {
+        enviarNotificacion('r', eventoParams, params.revisado_by, (err, info) => {
             if (err) return done(err);
 
             return done(error, evento);
