@@ -202,9 +202,9 @@ const enviarNotificacionRespuesta = (tipoNotificacion, evento, userid, done) => 
 
         mailOptions.parameters = {
             nombreEvento: evento.title,
-            fechaEvento: moment(evento.start).utc().format('DD-MM-YYYY'),
-            horaInicial: moment(evento.start).utc().format('hh:mm A'),
-            horaFinal: moment(evento.end).utc().format('hh:mm A'),
+            fechaEvento: moment(evento.start).format('DD-MM-YYYY'),
+            horaInicial: moment(evento.start).format('hh:mm A'),
+            horaFinal: moment(evento.end).format('hh:mm A'),
             respuestaEvento: estadoEvento[evento.estado]
         };
 
