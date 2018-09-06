@@ -4,6 +4,7 @@ var mysql = require('mysql');
 // let moment = require('moment');
 var moment = require('moment-timezone');
 moment.tz.setDefault("America/New_York");
+moment.locale('es');
 
 const con = require('../config/database');
 const SendEmailUtil = require('../utils/sendEmailUtil');
