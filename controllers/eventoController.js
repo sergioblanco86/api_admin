@@ -1,7 +1,9 @@
 var async = require('async');
 let _ = require('lodash');
-let moment = require('moment');
 var mysql = require('mysql');
+// let moment = require('moment');
+var moment = require('moment-timezone');
+moment.tz.setDefault("America/New_York");
 
 const con = require('../config/database');
 const SendEmailUtil = require('../utils/sendEmailUtil');
