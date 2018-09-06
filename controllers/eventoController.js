@@ -86,17 +86,44 @@ const crearResgistro = (eventoParams, done) => {
     var sql = "INSERT INTO evento SET ?";
     var inserts = params;
     sql = mysql.format(sql, inserts);
-    
-    con.query(sql, (error, evento) => {
-        
-        if (error) return done(error);
 
-        enviarNotificacion('s', params, params.created_by, (err, info) => {
-            if (err) return done(err);
+    async.waterfall([ 
+        function(callback){
+            EspacioController.obtenerEspacioById(params.id_espacio, (err, espacio) => {
 
-            return done(err, evento);
+                callback(err, espacio[0]);
+            });
+        },
+        function(espacio, callback){
+            let data = {};
+            validarEventoEspacio(params, (err, result) => {
+                data.espacio = espacio;
+                data.isAvailable = result;
+                callback(err, data);
+            });
+        }
+    ], (err, data) => {
+        if(err) return done(err, null);
+
+        if(data && _.get(data, 'espacio.estado', 0) == 0) {
+            err = new Error('El espacio esta inactivo.');
+            return done(err, null);
+        }
+
+        if(data && !_.get(data, 'espacio.isAvailable', false)){
+            err = new Error('El horario seleccionado no esta disponible.');
+            return done(err, null);
+        }
+
+        con.query(sql, (error, evento) => {
+            if (error) return done(error);
+
+            enviarNotificacion('s', params, params.created_by, (err, info) => {
+                if (err) return done(err);
+
+                return done(err, evento);
+            });
         });
-        
     });
 };
 
@@ -235,6 +262,21 @@ const administrarEvento = (eventoid, eventoParams, done) => {
         });
     });
 };
+
+function validarEventoEspacio(evento, done){
+    let query = { fecha_inicial: evento.start, fecha_final: evento.end};
+    let isAvailable = false;
+    obtenerEventosByEspacioId(evento.id_espacio, query, (err, data) => {
+        if (err) return done(err, null);
+
+        if(!data.length > 0){
+            isAvailable = true;
+            return done(null, isAvailable);
+        }
+
+        return done(null, isAvailable);
+    });
+}
 
 module.exports = {
   obtenerEventos,
