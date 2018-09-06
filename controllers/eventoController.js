@@ -167,11 +167,11 @@ const enviarNotificacionAprobadores = (tipoNotificacion, evento, userid, done) =
             usuarioSolicitud: usuario.nombre + ' ' + usuario.apellido,
             lugarEvento: espacio.nombre,
             nombreEvento: evento.title,
-            diaEvento: moment(evento.start).format('DD'),
-            mesEvento: moment(evento.start).format('MMMM'),
-            anoEvento: moment(evento.start).format('YYYY'),
-            horaInicial: moment(evento.start).format('hh:mm A'),
-            horaFinal: moment(evento.end).format('hh:mm A')
+            diaEvento: moment(evento.start).utc().format('DD'),
+            mesEvento: moment(evento.start).utc().format('MMMM'),
+            anoEvento: moment(evento.start).utc().format('YYYY'),
+            horaInicial: moment(evento.start).utc().format('hh:mm A'),
+            horaFinal: moment(evento.end).utc().format('hh:mm A')
         };
         mailOptions.to = to;
         mailOptions.subject = tipoNotificaciones[tipoNotificacion].subject;
@@ -199,9 +199,9 @@ const enviarNotificacionRespuesta = (tipoNotificacion, evento, userid, done) => 
 
         mailOptions.parameters = {
             nombreEvento: evento.title,
-            fechaEvento: moment(evento.start).format('DD-MM-YYYY'),
-            horaInicial: moment(evento.start).format('hh:mm A'),
-            horaFinal: moment(evento.end).format('hh:mm A'),
+            fechaEvento: moment(evento.start).utc().format('DD-MM-YYYY'),
+            horaInicial: moment(evento.start).utc().format('hh:mm A'),
+            horaFinal: moment(evento.end).utc().format('hh:mm A'),
             respuestaEvento: estadoEvento[evento.estado]
         };
 
