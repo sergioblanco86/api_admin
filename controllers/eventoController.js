@@ -110,10 +110,10 @@ const crearResgistro = (eventoParams, done) => {
             return done(err, null);
         }
 
-        if(data && !_.get(data, 'espacio.isAvailable', false)){
-            err = new Error('El horario seleccionado no esta disponible.');
-            return done(err, null);
-        }
+        // if(data && !_.get(data, 'espacio.isAvailable', false)){
+        //     err = new Error('El horario seleccionado no esta disponible.');
+        //     return done(err, null);
+        // }
 
         con.query(sql, (error, evento) => {
             if (error) return done(error);
