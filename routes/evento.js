@@ -103,10 +103,8 @@ router.post('/evento', jwtUtil.ensureToken, function(req, res, next) {
     } else {
       
         var params = req.body;
-        params.fecha_creacion = moment().utc().format();
-        params.fecha_modificacion = moment().utc().format();
 
-        eventoController.crearResgistro(params, (err, result) => {
+        eventoController.administrarCreacion(params, (err, result) => {
             if (err) return next(err);
 
             if (result) return res.json(result);

@@ -84,6 +84,27 @@ const eliminarEvento = (eventoid, done) => {
     });
 };
 
+const administrarCreacion = (lista, done) => {
+    let eventos = _.get(lista, 'eventos', []);
+    async.waterfall([ 
+        function(callback){
+            guardarEventos(eventos, (err, data) => {
+                callback(err, data);
+            });
+        },
+        function(data, callback){
+            enviarNotificaciones(eventos, (error, result) => {
+                callback(error, data);
+            });
+        }
+    ], (err, data) => {
+        if(err) return done(err, null);
+
+        return done(err, eventos);
+    });
+        
+};
+
 const crearResgistro = (eventoParams, done) => {
     var params = eventoParams;
     var sql = "INSERT INTO evento SET ?";
@@ -120,12 +141,8 @@ const crearResgistro = (eventoParams, done) => {
 
         con.query(sql, (error, evento) => {
             if (error) return done(error);
-
-            enviarNotificacion('s', params, params.created_by, (err, info) => {
-                if (err) return done(err);
-
-                return done(err, evento);
-            });
+            eventoParams = evento;
+            return done(err, eventoParams);
         });
     });
 };
@@ -281,6 +298,37 @@ function validarEventoEspacio(evento, done){
     });
 }
 
+function guardarEventos(eventos, done){
+    async.each(eventos, (evento, callback) => {
+        evento.fecha_creacion = moment().utc().format();
+        evento.fecha_modificacion = moment().utc().format();
+        crearResgistro(evento, (error, result) => {
+            if(!error){
+                if(result.affectedRows > 0){
+                    evento.idevento = result.insertId;
+                }
+            }
+            callback(error, result);
+        })
+    }, (err, data) => {
+        if(err) return done(err);
+
+        return done(null, eventos);
+    });
+}
+
+function enviarNotificaciones(eventos, done){
+    async.each(eventos, (evento, callback) => {
+        enviarNotificacion('s', evento, evento.created_by, (err, info) => {
+            callback(err, info);
+        });
+    }, (err, data) => {
+        if(err) return done(err);
+
+        return done(null, data);
+    });
+}
+
 module.exports = {
   obtenerEventos,
   obtenerEventosByUserId,
@@ -289,5 +337,6 @@ module.exports = {
   eliminarEvento,
   crearResgistro,
   modificarRegistro,
-  administrarEvento
+  administrarEvento,
+  administrarCreacion
 };
