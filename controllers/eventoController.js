@@ -33,9 +33,11 @@ const obtenerEventos = (query, done) => {
     let where = " WHERE ";
     if(_.has(query, 'externo')){
         let interno = (query.externo == true) ? 0 : 1;
+        let fecha_inicial = moment(query.fecha_inicial).format('YYYY-MM-DD') + 'T00:00:00:000Z';
+        let fecha_final = moment(query.fecha_final).format('YYYY-MM-DD') + 'T23:59:00:000Z';
         where += "interno = " + interno + " AND ";
-        where += "(start BETWEEN '" + query.fecha_inicial + "' AND " + "'" + query.fecha_final + "' OR ";
-        where += "end BETWEEN '" + query.fecha_inicial + "' AND " + "'" + query.fecha_final + "')";
+        where += "(start BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "' OR ";
+        where += "end BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "')";
         sql += where;
     }
     sql = mysql.format(sql);
@@ -60,8 +62,10 @@ const obtenerEventosByEspacioId = (espacioid, query, done) => {
     let sql = 'SELECT * FROM evento WHERE id_espacio = ' + espacioid;
     let and = " AND ";
     if(_.has(query, 'fecha_inicial')){
-        and += "(start BETWEEN '" + query.fecha_inicial + "' AND " + "'" + query.fecha_final + "' OR ";
-        and += "end BETWEEN '" + query.fecha_inicial + "' AND " + "'" + query.fecha_final + "')";
+        let fecha_inicial = moment(query.fecha_inicial).format('YYYY-MM-DD') + 'T00:00:00:000Z';
+        let fecha_final = moment(query.fecha_final).format('YYYY-MM-DD') + 'T23:59:00:000Z';
+        and += "(start BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "' OR ";
+        and += "end BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "')";
         sql += and;
     }
     sql = mysql.format(sql);
