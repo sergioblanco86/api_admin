@@ -1,0 +1,11 @@
+<p> El usuario <strong>{{usuarioSolicitud}}</strong>  ha solicitado el lugar <strong>{{lugarEvento}}</strong>
+    para realizar los siguientes eventos: 
+</p>
+<ul>
+    {{#eventos}}
+    <li>
+        <strong>{{nombreEvento}}</strong> el día <strong>{{diaEvento}}</strong> de <strong>{{mesEvento}}</strong> 
+        del <strong>{{anoEvento}}</strong> desde las <strong>{{horaInicial}}</strong> a <strong>{{horaFinal}}</strong>
+    </li>
+    {{/eventos}}
+</ul>

@@ -1,7 +1,7 @@
 var async = require('async');
 let _ = require('lodash');
 var mysql = require('mysql');
-// let moment = require('moment');
+var shortid = require('short-id');
 var moment = require('moment-timezone');
 moment.tz.setDefault("America/Mexico_City");
 moment.locale('es');
@@ -14,11 +14,13 @@ const UserController = require('./userController');
 let tipoNotificaciones = { 
     s: {
         subject: 'Eventos - Nueva solicitud.',
-        template: 'solicitud.html'
+        template1: 'solicitud.html',
+        template2: 'solicitudVarios.html'
     }, 
     r: {
         subject: 'Eventos - Respuesta solicitud.',
-        template: 'respuesta.html'
+        template1: 'respuesta.html',
+        template2: 'respuestaVarios.html'
     }
 };
 
@@ -75,10 +77,21 @@ const obtenerEventosByEspacioId = (espacioid, query, done) => {
 };
 
 const obtenerEventoById = (eventoid, done) => {
-    con.query('SELECT * FROM evento WHERE idevento = ' + eventoid, (errors, result) => {
+    let sql = 'SELECT * FROM evento WHERE idevento = ' + eventoid;
+    sql = mysql.format(sql);
+    con.query(sql, (errors, result) => {
        
         return done(errors, result);
         
+    });
+};
+
+const obtenerEventosByGroupId = (groupid, done) => {
+    let sql = 'SELECT * FROM evento WHERE group_id = ' + groupid + ' ORDER BY start ASC';
+    sql = mysql.format(sql);
+    con.query(sql, (errors, result) => {
+       
+        return done(errors, result);
     });
 };
 
@@ -92,19 +105,21 @@ const administrarCreacion = (lista, done) => {
     let eventos = _.get(lista, 'eventos', []);
     async.waterfall([ 
         function(callback){
-            guardarEventos(eventos, (err, data) => {
+            let group_id = shortid.generate();
+            guardarEventos(eventos, group_id, (err, data) => {
                 callback(err, data);
-            });
-        },
-        function(data, callback){
-            enviarNotificaciones(eventos, (error, result) => {
-                callback(error, data);
             });
         }
     ], (err, data) => {
         if(err) return done(err, null);
 
-        return done(err, eventos);
+        enviarNotificacion('s', eventos, eventos[0].created_by, (err, info) => {
+            if(err) return done(err, null);
+            
+            return done(err, data);
+        });
+
+        // return done(err, eventos);
     });
         
 };
@@ -151,11 +166,11 @@ const crearResgistro = (eventoParams, done) => {
     });
 };
 
-const enviarNotificacionAprobadores = (tipoNotificacion, evento, userid, done) => {
+const enviarNotificacionAprobadores = (tipoNotificacion, eventos, userid, done) => {
     let mailOptions = {};
     let to = '';
     let data ={};
-    let idEspacio = evento.id_espacio;
+    let idEspacio = eventos[0].id_espacio;
 
     async.waterfall([ 
         function(callback){
@@ -187,23 +202,48 @@ const enviarNotificacionAprobadores = (tipoNotificacion, evento, userid, done) =
             to += (key <  data.aprobadores.length - 1) ? ', ' : '';
         });
 
-        mailOptions.parameters = {
-            usuarioSolicitud: usuario.nombre + ' ' + usuario.apellido,
-            lugarEvento: espacio.nombre,
-            nombreEvento: evento.title,
-            diaEvento: moment(evento.start).format('DD'),
-            mesEvento: moment(evento.start).format('MMMM'),
-            anoEvento: moment(evento.start).format('YYYY'),
-            horaInicial: moment(evento.start).format('hh:mm A'),
-            horaFinal: moment(evento.end).format('hh:mm A')
-        };
+        let last = eventos.length;
+        if(last == 1){
+            let evento = eventos[0];
+            mailOptions.parameters = {
+                usuarioSolicitud: usuario.nombre + ' ' + usuario.apellido,
+                lugarEvento: espacio.nombre,
+                nombreEvento: evento.title,
+                diaEvento: moment(evento.start).format('DD'),
+                mesEvento: moment(evento.start).format('MMMM'),
+                anoEvento: moment(evento.start).format('YYYY'),
+                horaInicial: moment(evento.start).format('hh:mm A'),
+                horaFinal: moment(evento.end).format('hh:mm A')
+            };
+            mailOptions.template = tipoNotificaciones[tipoNotificacion].template1;
+
+        } else {
+            let eventosFormated = [];
+            let item = {};
+            _.forEach(eventos, (evento) => {
+                item = {
+                        nombreEvento: evento.title, 
+                        diaEvento: moment(evento.start).format('DD'),
+                        mesEvento: moment(evento.start).format('MMMM'),
+                        anoEvento: moment(evento.start).format('YYYY'),
+                        horaInicial: moment(evento.start).format('hh:mm A'),
+                        horaFinal: moment(evento.end).format('hh:mm A')
+                    };
+                eventosFormated.push(item);
+            });
+            mailOptions.parameters = {
+                usuarioSolicitud: usuario.nombre + ' ' + usuario.apellido,
+                lugarEvento: espacio.nombre,
+                eventos: eventosFormated
+            };
+            mailOptions.template = tipoNotificaciones[tipoNotificacion].template2;
+        }
         mailOptions.to = to;
         mailOptions.subject = tipoNotificaciones[tipoNotificacion].subject;
-        mailOptions.template = tipoNotificaciones[tipoNotificacion].template;
         SendEmailUtil.sendEmail(mailOptions, (error, info) => {
             if (error) return done(error);
     
-            return done(error, info);
+            return done(null, info);
         });
     });
 };
@@ -217,21 +257,46 @@ const enviarNotificacionRespuesta = (tipoNotificacion, evento, userid, done) => 
             UserController.obtenerUsuarioById(userid, (err, usuario) => {
                 callback(err, usuario);
             });
+        },
+        function(usuario, callback){
+            let items = {};
+            if(_.has(evento, 'group_id')){
+                obtenerEventosByGroupId(evento.group_id, (err, eventos) => {
+                    items = {usuario: usuario[0], eventos};
+                    callback(err, items);
+                });
+            } else {
+                items = {usuario: usuario[0], eventos: [evento]};
+                callback(err, items);
+            }
         }
     ], (err, data) => {
         if (err) return done(err);
 
-        mailOptions.parameters = {
-            nombreEvento: evento.title,
-            fechaEvento: moment(evento.start).format('DD-MM-YYYY'),
-            horaInicial: moment(evento.start).format('hh:mm A'),
-            horaFinal: moment(evento.end).format('hh:mm A'),
-            respuestaEvento: estadoEvento[evento.estado]
-        };
+        let last = data.eventos.length;
 
-        mailOptions.to = data[0].email;
+        if(last == 1){
+            mailOptions.parameters = {
+                nombreEvento: evento.title,
+                fechaEvento: moment(evento.start).format('DD-MM-YYYY'),
+                horaInicial: moment(evento.start).format('hh:mm A'),
+                horaFinal: moment(evento.end).format('hh:mm A'),
+                respuestaEvento: estadoEvento[evento.estado]
+            };
+            mailOptions.template = tipoNotificaciones[tipoNotificacion].template1;
+        } else {
+            let eventoInicial = data.eventos[0];
+            let eventoFinal = data.eventos[last];
+            mailOptions.parameters = {
+                fechaInicial: moment(eventoInicial.start).format('DD-MM-YYYY'),
+                fechaFinal: moment(eventoFinal.end).format('DD-MM-YYYY'),
+                respuestaEvento: estadoEvento[evento.estado],
+            };
+            mailOptions.template = tipoNotificaciones[tipoNotificacion].template2;
+        }
+
+        mailOptions.to = data.usuario.email;
         mailOptions.subject = tipoNotificaciones[tipoNotificacion].subject;
-        mailOptions.template = tipoNotificaciones[tipoNotificacion].template;
         SendEmailUtil.sendEmail(mailOptions, (error, info) => {
             if (error) return done(error);
     
@@ -244,9 +309,17 @@ const enviarNotificacionRespuesta = (tipoNotificacion, evento, userid, done) => 
 
 const enviarNotificacion = (tipoNotificacion, evento, userid, done) => {
     if(tipoNotificacion == 's'){
-        enviarNotificacionAprobadores(tipoNotificacion, evento, userid, done);
+        enviarNotificacionAprobadores(tipoNotificacion, evento, userid, (err, data) => {
+            if(err) return done(err);
+
+            return done(null, data);
+        });
     } else {
-        enviarNotificacionRespuesta(tipoNotificacion, evento, userid, done);
+        enviarNotificacionRespuesta(tipoNotificacion, evento, userid, (err, data) => {
+            if(err) return done(err);
+
+            return done(null, data);
+        });
     }
 };
 
@@ -287,6 +360,28 @@ const administrarEvento = (eventoid, eventoParams, done) => {
     });
 };
 
+const administrarEventos = (groupid, eventoParams, done) => {
+    var params = {};
+    params.estado = _.get(eventoParams, 'estado');
+    params.revisado_by = _.get(eventoParams, 'revisado_by');
+
+    var sql = "UPDATE evento SET ? WHERE group_id = " + groupid;
+    var inserts = params;
+    sql = mysql.format(sql, inserts);
+
+    con.query(sql, (error, evento) => {
+        
+        if (error) return done(error);
+
+        // return done(error, evento);
+        enviarNotificacion('r', eventoParams, params.revisado_by, (err, info) => {
+            if (err) return done(err);
+
+            return done(error, evento);
+        });
+    });
+};
+
 function validarEventoEspacio(evento, done){
     let query = { fecha_inicial: evento.start, fecha_final: evento.end};
     let isAvailable = false;
@@ -302,8 +397,9 @@ function validarEventoEspacio(evento, done){
     });
 }
 
-function guardarEventos(eventos, done){
+function guardarEventos(eventos, groupid, done){
     async.each(eventos, (evento, callback) => {
+        evento.group_id = groupid;
         evento.fecha_creacion = moment().utc().format();
         evento.fecha_modificacion = moment().utc().format();
         crearResgistro(evento, (error, result) => {
@@ -321,17 +417,17 @@ function guardarEventos(eventos, done){
     });
 }
 
-function enviarNotificaciones(eventos, done){
-    async.each(eventos, (evento, callback) => {
-        enviarNotificacion('s', evento, evento.created_by, (err, info) => {
-            callback(err, info);
-        });
-    }, (err, data) => {
-        if(err) return done(err);
+// function enviarNotificaciones(eventos, done){
+//     async.each(eventos, (evento, callback) => {
+//         enviarNotificacion('s', evento, evento.created_by, (err, info) => {
+//             callback(err, info);
+//         });
+//     }, (err, data) => {
+//         if(err) return done(err);
 
-        return done(null, data);
-    });
-}
+//         return done(null, data);
+//     });
+// }
 
 module.exports = {
   obtenerEventos,
@@ -342,5 +438,7 @@ module.exports = {
   crearResgistro,
   modificarRegistro,
   administrarEvento,
-  administrarCreacion
+  administrarCreacion,
+  administrarEventos,
+  obtenerEventosByGroupId
 };

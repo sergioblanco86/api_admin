@@ -1,10 +1,10 @@
 var mysql = require('mysql');
 
 var connection = mysql.createPool({
-    host : 'eventos.ccgeehskphbz.us-east-1.rds.amazonaws.com',
-    user : 'root',
-    password : '3d11f4ab',
-    database : 'eventos'
+    host : 'us-cdbr-iron-east-01.cleardb.net',
+    user : 'b0125b9cedc83f',
+    password : 'a581c348',
+    database : 'heroku_5a5db7520d1a2f4'
 });
 
 module.exports = connection;

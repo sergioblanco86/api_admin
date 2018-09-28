@@ -164,4 +164,29 @@ router.put('/evento/:eventoid/gestionar', jwtUtil.ensureToken, function(req, res
   });
 });
 
+/* UPDATE evento by id. */
+router.put('/evento/gestionar/grupo/:groupid', jwtUtil.ensureToken, function(req, res, next) {
+  jwt.verify(req.token, 'login_key', function(err, data) {
+    if (err) {
+      res.sendStatus(403);
+    } else {
+      var loggedUser = data.usuario;
+      var groupid = req.params.groupid;
+      var params = req.body;
+      params.fecha_modificacion = moment().utc().format();
+      if(loggedUser[0].tipo_perfil == 1 || loggedUser[0].tipo_perfil == 2){
+        eventoController.administrarEventos(groupid, params, (err, result) => {
+          if (err) return next(err);
+
+          if (result) return res.json(result);
+          return res.sendStatus(200);
+        });
+      } else {
+        var msg = "Solo el Administrador o Aprobador puede gestionar eventos.";
+        return res.status(300).json({status: 300, message: msg});
+      }
+    }
+  });
+});
+
 module.exports = router;
