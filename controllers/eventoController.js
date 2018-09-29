@@ -365,7 +365,7 @@ const administrarEventos = (groupid, eventoParams, done) => {
     params.estado = _.get(eventoParams, 'estado');
     params.revisado_by = _.get(eventoParams, 'revisado_by');
 
-    var sql = "UPDATE evento SET ? WHERE group_id = " + groupid;
+    var sql = "UPDATE evento SET ? WHERE group_id = '" + groupid + "'";
     var inserts = params;
     sql = mysql.format(sql, inserts);
 
