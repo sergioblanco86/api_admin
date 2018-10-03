@@ -61,15 +61,26 @@ const obtenerEventosByUserId = (userid,done) => {
 };
 
 const obtenerEventosByEspacioId = (espacioid, query, done) => {
-    let sql = 'SELECT * FROM evento WHERE id_espacio = ' + espacioid;
+    let sql = 'SELECT * FROM evento';
+    let where = ' WHERE evento.id_espacio = ' + espacioid;
     let and = " AND ";
+    let leftJoin = " LEFT JOIN ";
+
+    if(_.get(query, 'calificaciones', false) == "true"){
+        leftJoin += 'evaluacion ON evento.idevento = evaluacion.idevento';
+        sql += leftJoin;
+    }
+    
+    sql += where;
+
     if(_.has(query, 'fecha_inicial')){
         let fecha_inicial = moment(query.fecha_inicial).format('YYYY-MM-DD') + 'T00:00:00:000Z';
         let fecha_final = moment(query.fecha_final).format('YYYY-MM-DD') + 'T23:59:00:000Z';
-        and += "(start BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "' OR ";
-        and += "end BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "')";
+        and += "(evento.start BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "' OR ";
+        and += "evento.end BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "')";
         sql += and;
     }
+    
     sql = mysql.format(sql);
     con.query(sql, (errors, result) => {
         return done(errors, result);
