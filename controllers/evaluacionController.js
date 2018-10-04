@@ -44,18 +44,26 @@ const crearResgistro = (evaluacionParams, done) => {
     var params = evaluacionParams;
     var sql = "INSERT INTO evaluacion SET ?";
     var inserts = params;
-    sql = mysql.format(sql, inserts);
-    
-    con.query(sql, (error, evaluacion) => {
-        
-        if (error) return done(error);
 
-        eventoController.modificarRegistro(params.idevento, { calificado: true }, (err, result) => {
-            if (err) return done(err);
+    async.waterfall([
+        function(callback){
+            sql = mysql.format(sql, inserts);
+            con.query(sql, (error, info) => {
+                callback(error, info);
+            });
+        }, function(info, callback){
+            eventoController.obtenerEventosByGroupId(params.group_id, (err, eventos) => {
+                callback(err, eventos);
+            });
+        }, function(eventos, callback){
+            marcarCalificado(eventos, (err, result) => {
+                callback(err, info);
+            });
+        }
+    ], (err, data) => {
+        if (err) return done(err);
 
-            return done(error, evaluacion);
-        });
-        
+        return done(null, data);
     });
 };
 
@@ -73,6 +81,19 @@ const modificarRegistro = (evaluacionid, evaluacionParams, done) => {
         
     });
 };
+
+function marcarCalificado(eventos, done){
+   
+    async.each(eventos, (evento, callback) => {
+        eventoController.modificarRegistro(evento.idevento, { calificado: true }, (err, result) => {
+            callback(error, result);
+        });
+    }, (err, data) => {
+        if(err) return done(err);
+
+        return done(null, data);
+    });
+}
 
 module.exports = {
   obtenerEvaluaciones,

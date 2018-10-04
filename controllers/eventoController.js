@@ -61,31 +61,66 @@ const obtenerEventosByUserId = (userid,done) => {
 };
 
 const obtenerEventosByEspacioId = (espacioid, query, done) => {
-    let sql = 'SELECT * FROM evento';
-    let where = ' WHERE evento.id_espacio = ' + espacioid;
-    let and = " AND ";
-    let leftJoin = " LEFT JOIN ";
+    let sql = '';
+    async.waterfall([
+        function(callback){
+            sql = 'SELECT * FROM evento WHERE evento.id_espacio = ' + espacioid;
+            let and = " AND ";
 
-    if(_.get(query, 'calificaciones', false) == "true"){
-        leftJoin += 'evaluacion ON evento.idevento = evaluacion.idevento';
-        sql += leftJoin;
-    }
-    
-    sql += where;
+            if(_.has(query, 'fecha_inicial')){
+                let fecha_inicial = moment(query.fecha_inicial).format('YYYY-MM-DD') + 'T00:00:00:000Z';
+                let fecha_final = moment(query.fecha_final).format('YYYY-MM-DD') + 'T23:59:00:000Z';
+                and += "(evento.start BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "' OR ";
+                and += "evento.end BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "')";
+                sql += and;
+            }
+            ejecutarQuery(sql, (err, eventos) => {
+                return callback(err, eventos);
+            });
+        }, function(eventos, callback){
+            let obj = {eventos};
+            if(_.get(query, 'calificaciones', false) == "true"){
+                // sql = 'SELECT * FROM evaluacion WHERE group_id = ' + eventos[0].group_id;
+                obtenerEvaluacionesByGroupId(eventos, (err, calificaciones) => {
+                    if(err) return callback(err);
+                    obj.calificaciones = (calificaciones) ? calificaciones : [];
+                    return callback(err, obj);
+                });
+            } else {
+                return callback(null, obj);
+            }
+        }
+    ], (err, data) => {
+        if(err) return done(err);
 
-    if(_.has(query, 'fecha_inicial')){
-        let fecha_inicial = moment(query.fecha_inicial).format('YYYY-MM-DD') + 'T00:00:00:000Z';
-        let fecha_final = moment(query.fecha_final).format('YYYY-MM-DD') + 'T23:59:00:000Z';
-        and += "(evento.start BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "' OR ";
-        and += "evento.end BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "')";
-        sql += and;
-    }
-    
+        return done(null, data);
+    })
+};
+
+function obtenerEvaluacionesByGroupId(eventos, done){
+    let sql = '';
+    let calificaciones = [];
+    async.each(eventos, (evento, callback) => {
+        sql = "SELECT * FROM evaluacion WHERE group_id = '" + evento.group_id + "'";
+        ejecutarQuery(sql, (err, calificacion) => {
+            if(calificacion.length > 0){
+                calificaciones.push(calificacion[0]);
+            }
+            return callback(err);
+        });
+    }, (err) => {
+        if(err) return done(err);
+
+        return done(null, calificaciones);
+    });
+}
+
+function ejecutarQuery(sql, done){
     sql = mysql.format(sql);
     con.query(sql, (errors, result) => {
         return done(errors, result);
     });
-};
+}
 
 const obtenerEventoById = (eventoid, done) => {
     let sql = 'SELECT * FROM evento WHERE idevento = ' + eventoid;
@@ -278,7 +313,7 @@ const enviarNotificacionRespuesta = (tipoNotificacion, evento, userid, done) => 
                 });
             } else {
                 items = {usuario: usuario[0], eventos: [evento]};
-                callback(err, items);
+                callback(null, items);
             }
         }
     ], (err, data) => {
