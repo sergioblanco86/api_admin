@@ -133,7 +133,7 @@ const obtenerEventoById = (eventoid, done) => {
 };
 
 const obtenerEventosByGroupId = (groupid, done) => {
-    let sql = 'SELECT * FROM evento WHERE group_id = ' + groupid + ' ORDER BY start ASC';
+    let sql = "SELECT * FROM evento WHERE group_id = '" + groupid + "' ORDER BY start ASC";
     sql = mysql.format(sql);
     con.query(sql, (errors, result) => {
        
