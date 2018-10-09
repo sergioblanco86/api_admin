@@ -44,6 +44,7 @@ const crearResgistro = (evaluacionParams, done) => {
     var params = evaluacionParams;
     var sql = "INSERT INTO evaluacion SET ?";
     var inserts = params;
+    let info = null;
 
     async.waterfall([
         function(callback){
@@ -51,7 +52,8 @@ const crearResgistro = (evaluacionParams, done) => {
             con.query(sql, (error, info) => {
                 callback(error, info);
             });
-        }, function(info, callback){
+        }, function(infoR, callback){
+            info = infoR;
             eventoController.obtenerEventosByGroupId(params.group_id, (err, eventos) => {
                 callback(err, eventos);
             });
