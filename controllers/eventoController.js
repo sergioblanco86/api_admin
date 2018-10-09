@@ -62,10 +62,31 @@ const obtenerEventosByUserId = (userid,done) => {
 
 const obtenerEventosByEspacioId = (espacioid, query, done) => {
     let sql = '';
+    let join = '';
     async.waterfall([
         function(callback){
-            sql = 'SELECT * FROM evento WHERE evento.id_espacio = ' + espacioid;
+            sql = 'SELECT evento.*, ' +
+            'tipo_evento.nombre as tipo_evento, ' +
+            'espacio.nombre as espacio_nombre, ' +
+            'programa.nombre as programa_nombre, ' +
+            'proyecto.nombre as proyecto_nombre, ' +
+            'usuario.nombre as revisado_by_nombre, ' +
+            'usuario.apellido as revisado_by_apellido, ' +
+            'usu.nombre as created_by_nombre, ' +
+            'usu.apellido as created_by_apellido ' +
+            'FROM evento ';
+            let where = ' WHERE evento.id_espacio = ' + espacioid;
             let and = " AND ";
+            
+            join = 'LEFT JOIN espacio ON evento.id_espacio = espacio.idespacio ' +
+                    'LEFT JOIN programa ON evento.id_programa = programa.idprograma ' +
+                    'LEFT JOIN proyecto ON evento.id_proyecto = proyecto.idproyecto ' +
+                    'LEFT JOIN tipo_evento ON evento.id_tipo_evento = tipo_evento.idTipoEvento '+
+                    'LEFT JOIN usuario ON evento.revisado_by = usuario.id ' +
+                    'LEFT JOIN usuario usu ON evento.created_by = usu.id';
+
+            sql += join;
+            sql += where;
 
             if(_.has(query, 'fecha_inicial')){
                 let fecha_inicial = moment(query.fecha_inicial).format('YYYY-MM-DD') + 'T00:00:00:000Z';
@@ -74,6 +95,7 @@ const obtenerEventosByEspacioId = (espacioid, query, done) => {
                 and += "evento.end BETWEEN '" + fecha_inicial + "' AND " + "'" + fecha_final + "')";
                 sql += and;
             }
+
             ejecutarQuery(sql, (err, eventos) => {
                 return callback(err, eventos);
             });

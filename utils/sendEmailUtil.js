@@ -5,15 +5,20 @@ var async = require('async');
 
 exports.sendEmail = function(mailOptions, done) {
 
-    let account = {email: 'infoservicio.interno@gmail.com', pass: '9pz7qmms!', service: 'gmail'};
+    // let account = {email: 'infoservicio.interno@gmail.com', pass: '9pz7qmms!', service: 'gmail'};
 
-    var transporter = nodemailer.createTransport({
-        service: account.service,
+    let smtpConfig = {
+        host: 'secure.emailsrvr.com',
+        port: 465,
+        secure: true, // use TLS
         auth: {
-          user: account.email,
-          pass: account.pass
-        }
-    });
+            user: 'no-reply-scpt@barranquilla.gov.co',
+            pass: 'Ed43sth3r2018'
+        },
+        authMethod: 'LOGIN'
+    };
+
+    var transporter = nodemailer.createTransport(smtpConfig);
 
     async.waterfall([ 
         function(callback){
@@ -28,7 +33,7 @@ exports.sendEmail = function(mailOptions, done) {
         let template = handlebars.compile(html);
         let htmlToSend = template(mailOptions.parameters);
 
-        mailOptions.from = account.email;
+        mailOptions.from = smtpConfig.auth.user;
         mailOptions.html = htmlToSend;
 
         delete mailOptions.template;
