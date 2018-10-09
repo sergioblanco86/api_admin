@@ -85,7 +85,7 @@ const modificarRegistro = (evaluacionid, evaluacionParams, done) => {
 function marcarCalificado(eventos, done){
    
     async.each(eventos, (evento, callback) => {
-        eventoController.modificarRegistro(evento.idevento, { calificado: true }, (err, result) => {
+        eventoController.modificarRegistro(evento.idevento, { calificado: true }, (error, result) => {
             callback(error, result);
         });
     }, (err, data) => {
