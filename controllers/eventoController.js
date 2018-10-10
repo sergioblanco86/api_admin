@@ -1,3 +1,5 @@
+'use strict';
+
 var async = require('async');
 let _ = require('lodash');
 var mysql = require('mysql');
