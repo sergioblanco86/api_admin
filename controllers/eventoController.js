@@ -127,7 +127,7 @@ function obtenerEvaluacionesByGroupId(eventos, done){
     async.each(eventos, (evento, callback) => {
         sql = "SELECT * FROM evaluacion WHERE group_id = '" + evento.group_id + "'";
         ejecutarQuery(sql, (err, calificacion) => {
-            if(calificacion.length > 0){
+            if(!err && calificacion.length > 0){
                 calificaciones.push(calificacion[0]);
             }
             return callback(err);
