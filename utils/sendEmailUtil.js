@@ -13,7 +13,7 @@ exports.sendEmail = function(mailOptions, done) {
         secure: true, // use TLS
         auth: {
             user: 'no-reply-scpt@barranquilla.gov.co',
-            pass: 'Ed43sth3r2018'
+            pass: 'Ed42017.123'
         },
         authMethod: 'LOGIN'
     };

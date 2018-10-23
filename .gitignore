@@ -5,6 +5,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .env
+.vscode/
+launch.json
 
 # Dependency directories
 node_modules/
