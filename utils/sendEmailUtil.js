@@ -7,15 +7,28 @@ exports.sendEmail = function(mailOptions, done) {
 
     // let account = {email: 'infoservicio.interno@gmail.com', pass: '9pz7qmms!', service: 'gmail'};
 
+    // let smtpConfig = {
+    //     host: 'secure.emailsrvr.com',
+    //     port: 465,
+    //     secure: true, // use TLS
+    //     auth: {
+    //         user: 'no-reply-scpt@barranquilla.gov.co',
+    //         pass: 'Ed42017.123'
+    //     },
+    //     authMethod: 'LOGIN'
+    // };
+
     let smtpConfig = {
-        host: 'secure.emailsrvr.com',
-        port: 465,
-        secure: true, // use TLS
+        host: "smtp-mail.outlook.com", // hostname
+        secureConnection: false, // TLS requires secureConnection to be false
+        port: 587, // port for secure SMTP
+        tls: {
+            ciphers:'SSLv3'
+        },
         auth: {
             user: 'no-reply-scpt@barranquilla.gov.co',
             pass: 'Ed42017.123'
-        },
-        authMethod: 'LOGIN'
+        }
     };
 
     var transporter = nodemailer.createTransport(smtpConfig);
